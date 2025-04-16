@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:senada/screens/HomePage/homepage_screen.dart';
+import 'package:senada/screens/auth/Login.dart';
+import 'package:senada/screens/auth/Register.dart';
+import 'package:senada/screens/auth/resetpassword.dart';
 
 void main() {
   runApp(const MainApp());
@@ -13,13 +16,13 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Senada App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Inter',
-      ),
-      initialRoute: '/', // rute awal aplikasi
+      theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'Inter'),
+      initialRoute: '/Login', // rute awal aplikasi
       routes: {
         '/': (context) => const HomePage(),
+        '/Login': (context) => const Login(),
+        '/Register': (context) => Register(),
+        '/ResetPassword': (context) => const ResetPassword(),
         // Tambahkan rute lainnya di sini jika perlu
       },
     );
