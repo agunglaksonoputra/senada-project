@@ -69,12 +69,12 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
                           title: Text(
                             daerah,
                             style: TextStyle(
-                              color: daerah == selectedDaerah ? Colors.green : null,
+                              color: daerah == selectedDaerah ? Color(0xFF5F8B4C) : null,
                               fontWeight: daerah == selectedDaerah ? FontWeight.bold : null,
                             ),
                           ),
                           trailing: daerah == selectedDaerah
-                              ? Icon(Icons.check, color: Colors.green)
+                              ? Icon(Icons.check, color: Color(0xFF5F8B4C))
                               : null,
                           onTap: () {
                             setState(() {
@@ -119,11 +119,11 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.place, color: Colors.green, size: 16),
+                    Icon(Icons.place, color: Color(0xFF5F8B4C), size: 16),
                     SizedBox(width: 4),
                     Text(
                       selectedDaerah,
-                      style: TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: Color(0xFF5F8B4C), fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
