@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:senada/screens/HomePage/homepage_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -9,12 +10,18 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Senada App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        fontFamily: 'Inter',
       ),
+      initialRoute: '/', // rute awal aplikasi
+      routes: {
+        '/': (context) => const HomePage(),
+        // Tambahkan rute lainnya di sini jika perlu
+      },
     );
   }
 }
