@@ -146,58 +146,61 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
                   itemCount: showList.length,
                   itemBuilder: (context, index) {
                     final show = showList[index];
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 10),
-                      padding: EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 2,
-                            offset: Offset(0, 1),
-                          )
-                        ],
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Gambar di kiri
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(
-                              show['image']!,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
+                    return InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(context, '/DetailPage'); // ganti sesuai nama route kamu
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        padding: EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 2,
+                              offset: Offset(0, 1),
+                            )
+                          ],
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Gambar di kiri
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(
+                                show['image']!,
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 10),
-                          
-                          // Judul dan Deskripsi
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  show['title']!,
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  show['description']!,
-                                  style: TextStyle(fontSize: 11, color: Colors.grey[700]),
-                                  maxLines: 4,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
+                            SizedBox(width: 10),
+
+                            // Judul dan Deskripsi
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    show['title']!,
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    show['description']!,
+                                    style: TextStyle(fontSize: 11, color: Colors.grey[700]),
+                                    maxLines: 4,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-
-
                     );
                   },
                 ),

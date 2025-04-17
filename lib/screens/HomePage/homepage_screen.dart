@@ -1,7 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:senada/widgets/bottom_navigation.dart';  // Import bottom navigation widget
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;  // Menyimpan index yang dipilih pada bottom navigation bar
+
+  // Fungsi untuk menavigasi halaman berdasarkan index
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // Navigasi ke halaman sesuai index
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/');
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, '/komunitas');
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/favorit');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/akun');
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,36 +142,9 @@ class HomePage extends StatelessWidget {
         ),
       ),
 
-      bottomNavigationBar: Container(
-        height: 100,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 0,
-              blurRadius: 10,
-              offset: Offset(0, -4), // Shadow ke atas
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: Color(0xFF2A3663),
-          unselectedItemColor: Colors.grey,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.people),
-              label: 'Komunitas',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark),
-              label: 'Favorit',
-            ),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
-          ],
-        ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,  // Mengatur index yang dipilih
+        onItemTapped: _onItemTapped,  // Mengirimkan fungsi navigasi
       ),
     );
   }
@@ -173,6 +177,7 @@ class HomePage extends StatelessWidget {
     return InkWell(
       onTap: () {
         // Navigasi ke halaman lain saat card diklik
+        Navigator.pushNamed(context, '/MenuPage');
       },
       child: Container(
         width: 180,
