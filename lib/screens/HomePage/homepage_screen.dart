@@ -32,10 +32,7 @@ class HomePage extends StatelessWidget {
             // Categories
             Container(
               margin: EdgeInsets.all(20),
-              padding: EdgeInsets.symmetric(
-                vertical: 20,
-                horizontal: 10,
-              ),
+              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
@@ -51,7 +48,10 @@ class HomePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildCategoryItem('Tari\nTradisional', Icons.self_improvement),
+                  _buildCategoryItem(
+                    'Tari\nTradisional',
+                    Icons.self_improvement,
+                  ),
                   _buildCategoryItem('Musik\nDaerah', Icons.music_note),
                   _buildCategoryItem('Teater', Icons.theater_comedy),
                   _buildCategoryItem('Festival\nBudaya', Icons.celebration),
@@ -60,15 +60,10 @@ class HomePage extends StatelessWidget {
             ),
 
             Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 20,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
                 'Tempat pertunjukan populer',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
 
@@ -80,33 +75,33 @@ class HomePage extends StatelessWidget {
                   children: [
                     // Card
                     _buildEventCard(
-                        'Tari Kecak & Api Uluwatu',
-                        'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
-                        'assets/images/tari_kecak.jpg'
+                      'Tari Kecak & Api Uluwatu',
+                      'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
+                      'assets/images/tari_kecak.jpg',
                     ),
                     SizedBox(width: 10),
                     _buildEventCard(
-                        'Tari Kecak & Api Uluwatu',
-                        'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
-                        'assets/images/tari_kecak.jpg'
+                      'Tari Kecak & Api Uluwatu',
+                      'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
+                      'assets/images/tari_kecak.jpg',
                     ),
                     SizedBox(width: 10),
                     _buildEventCard(
-                        'Tari Kecak & Api Uluwatu',
-                        'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
-                        'assets/images/tari_kecak.jpg'
+                      'Tari Kecak & Api Uluwatu',
+                      'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
+                      'assets/images/tari_kecak.jpg',
                     ),
                     SizedBox(width: 10),
                     _buildEventCard(
-                        'Tari Kecak & Api Uluwatu',
-                        'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
-                        'assets/images/tari_kecak.jpg'
+                      'Tari Kecak & Api Uluwatu',
+                      'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
+                      'assets/images/tari_kecak.jpg',
                     ),
                     SizedBox(width: 10),
                     _buildEventCard(
-                        'Tari Kecak & Api Uluwatu',
-                        'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
-                        'assets/images/tari_kecak.jpg'
+                      'Tari Kecak & Api Uluwatu',
+                      'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
+                      'assets/images/tari_kecak.jpg',
                     ),
                   ],
                 ),
@@ -134,10 +129,7 @@ class HomePage extends StatelessWidget {
           selectedItemColor: Color(0xFF2A3663),
           unselectedItemColor: Colors.grey,
           items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Beranda',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
             BottomNavigationBarItem(
               icon: Icon(Icons.people),
               label: 'Komunitas',
@@ -146,10 +138,7 @@ class HomePage extends StatelessWidget {
               icon: Icon(Icons.bookmark),
               label: 'Favorit',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Akun',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
           ],
         ),
       ),
@@ -158,8 +147,7 @@ class HomePage extends StatelessWidget {
 
   Widget _buildCategoryItem(String title, IconData icon) {
     return GestureDetector(
-      onTap: () {
-      },
+      onTap: () {},
       child: Column(
         children: [
           Container(
@@ -168,11 +156,7 @@ class HomePage extends StatelessWidget {
               color: const Color(0xFF6F8878),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size:30,
-            ),
+            child: Icon(icon, color: Colors.white, size: 30),
           ),
           const SizedBox(height: 8),
           Text(
@@ -189,16 +173,17 @@ class HomePage extends StatelessWidget {
     return InkWell(
       onTap: () {
         // Navigasi ke halaman lain saat card diklik
-
       },
       child: Container(
         width: 180,
         decoration: BoxDecoration(
-          color: Colors.white,  // Latar belakang putih
-          borderRadius: BorderRadius.circular(8),  // Sudut melengkung
+          color: Colors.white, // Latar belakang putih
+          borderRadius: BorderRadius.circular(8), // Sudut melengkung
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1), // Warna shadow dengan opacity
+              color: Colors.black.withOpacity(
+                0.1,
+              ), // Warna shadow dengan opacity
               blurRadius: 5, // Jarak blur shadow
               offset: Offset(0, 4), // Posisi shadow (horizontal, vertical)
             ),
@@ -226,18 +211,13 @@ class HomePage extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     description,
                     textAlign: TextAlign.justify,
-                    style: TextStyle(
-                      fontSize: 10,
-                    ),
+                    style: TextStyle(fontSize: 10),
                   ),
                 ],
               ),
@@ -248,4 +228,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-
