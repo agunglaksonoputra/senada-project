@@ -20,16 +20,10 @@ class _HomePageState extends State<HomePage> {
     // Navigasi ke halaman sesuai index
     switch (index) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/');
-        break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/komunitas');
-        break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/favorit');
-        break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/akun');
+        Navigator.pushReplacementNamed(context, '/Login');
         break;
     }
   }
