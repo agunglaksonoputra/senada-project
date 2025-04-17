@@ -5,6 +5,7 @@ import 'package:senada/screens/auth/Login.dart';
 import 'package:senada/screens/auth/Register.dart';
 import 'package:senada/screens/auth/resetpassword.dart';
 import 'package:senada/screens/menuPage/menuPage.dart';
+import 'package:senada/Screens/reservation/reservation.dart';
 
 void main() {
   runApp(const MainApp());
@@ -27,7 +28,7 @@ class MainApp extends StatelessWidget {
         '/ResetPassword': (context) => const ResetPassword(),
         '/MenuPage': (context) => CulturalShowPage(),
         '/DetailPage': (context) => MyApp(),
-
+        '/Reservation': (context) => const ReservationPage(eventName: '',),
 
         // Tambahkan rute lainnya di sini jika perlu
       },
