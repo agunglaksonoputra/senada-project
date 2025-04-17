@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "name": "Flutter (lib\\Screens\\DetailPage\\DetailPage.dart)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib\\Screens\\DetailPage\\DetailPage.dart"
+        }
+    ]
+}
