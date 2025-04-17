@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 void main() => runApp(const MyApp());
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                ImageSection(image: 'assets/Rectangle12.png'),
+                ImageSection(image: 'assets/images/tari_kecak.jpg'),
                 TitleSection(
                   name: "Pertunjukan Tari Kecak & Api di Uluwatu",
                   rating: 10,
@@ -59,7 +61,24 @@ class MyApp extends StatelessWidget {
                   judul: "Waktu Pertunjukan",
                 ),
 
-                InformasiSection(name: "Detail Informasi", telepon: "+62 8123456789", lokasi: "Pura Uluwatu. Pecatu, Kuta Selatan, Kabupaten Badung, Bali, Indonesia",)
+                InformasiSection(
+                  name: "Detail Informasi",
+                  telepon: "+62 8123456789",
+                  lokasi:
+                      "Pura Uluwatu. Pecatu, Kuta Selatan, Kabupaten Badung, Bali, Indonesia",
+                ),
+
+                TextSection(
+                  deskripsi: "Langsung saksikan Tari Kecak dan Api di Pura Uluwatu, pertunjukan budaya paling ikonik di Bali! Bayangkan duduk di tepi tebing, ditemani suara deburan ombak dan matahari terbenam, sambil menikmati kisah epik Ramayana yang ditampilkan secara dramatis dan penuh semangat.\n\n"
+                      "\u2022 Rasakan atmosfer yang magis saat puluhan penari pria bersuara 'cak-cak-cak' dalam harmoni, membentuk irama yang bikin merinding \n"
+                      "\u2022 Saksikan aksi para penari menari di atas bara api, sebuah pertunjukan berani yang memukau \n"
+                      "\u2022 Nggak cuma nonton – kamu bisa larut dalam suasana dan diajak ikut teriak bersama, seru banget! \n"
+                      "\u2022 Wajib bawa kamera – momen sunset, para penari, dan pura Uluwatu jadi latar Instagramable yang nggak ada duanya \n\n"
+
+                    "Kalau kamu lagi liburan ke Bali, Pura Luhur Uluwatu adalah destinasi wajib. Tari Kecak dan Api di sini bukan hanya tontonan, tapi pengalaman budaya yang menyentuh hati."
+
+                    "Rasakan keajaiban budaya Bali, langsung dari tempat paling eksotis di pulau dewata. Jangan sampai ketinggalan ya!",
+                )
               ],
             ),
           ),
@@ -76,7 +95,7 @@ class ImageSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(image!, width: 420, fit: BoxFit.cover);
+    return Image.asset(image!, width: 415, fit: BoxFit.cover);
   }
 }
 
@@ -133,7 +152,6 @@ class TitleSection extends StatelessWidget {
                       ),
                     ],
                   ),
-
                 ),
               ),
               const SizedBox(width: 10),
@@ -147,7 +165,6 @@ class TitleSection extends StatelessWidget {
               ),
             ],
           ),
-
         ],
       ),
     );
@@ -163,7 +180,15 @@ class TextSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 5, left: 20, right: 20),
-      child: Text(deskripsi!, softWrap: true, textAlign: TextAlign.justify),
+      child: Text(
+        deskripsi!,
+        softWrap: true,
+        textAlign: TextAlign.justify,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
     );
   }
 }
@@ -193,7 +218,7 @@ class _JadwalSectionState extends State<JadwalSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 20, top: 10, bottom: 5),
+          padding: const EdgeInsets.only(left: 20, bottom: 5),
           child: Text(
             widget.judul,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -202,7 +227,7 @@ class _JadwalSectionState extends State<JadwalSection> {
 
         Container(
           height: 55,
-          margin: const EdgeInsets.only(top: 10, left: 15, bottom: 10),
+          margin: const EdgeInsets.only(top: 10, left: 15, bottom: 15),
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: List.generate(widget.listHari.length, (index) {
@@ -284,7 +309,7 @@ class _JamSectionState extends State<JamSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 20, top: 10, bottom: 5),
+          padding: const EdgeInsets.only(left: 20, bottom: 5),
           child: Text(
             widget.judul,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -293,7 +318,7 @@ class _JamSectionState extends State<JamSection> {
 
         Container(
           height: 40,
-          margin: const EdgeInsets.only(top: 5, left: 15, bottom: 10),
+          margin: const EdgeInsets.only(left: 15, bottom: 15),
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: List.generate(widget.listJam.length, (index) {
@@ -362,7 +387,7 @@ class InformasiSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 20, bottom: 10, left: 20),
+      padding: const EdgeInsets.only( bottom: 10, left: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -373,50 +398,57 @@ class InformasiSection extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
-          Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.only(bottom: 5, right: 5),
-                child: Container(
-                  padding: const EdgeInsets.only(right: 10, bottom: 5),
-
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.location_on, color: Color(0xFF3C5932), size: 20),
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: Text(
-                          '$lokasi',
-                          softWrap: true,
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
+          Container(
+            padding: const EdgeInsets.only(right: 40, bottom: 5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.location_on,
+                      color: Color(0xFF3C5932),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        lokasi!,
+                        softWrap: true,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 10),
-
-              const Icon(Icons.phone, color: Colors.black, size: 20,),
-              Text(
-                '$telepon',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: 10), // jarak antar baris
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.phone, color: Color(0xFF3C5932), size: 20),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        telepon!,
+                        softWrap: true,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-
         ],
       ),
     );
   }
 }
-
