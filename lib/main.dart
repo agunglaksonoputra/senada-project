@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:senada/screens/DetailPage/DetailPage.dart';
+import 'package:senada/Screens/DetailPage/DetailPage.dart';
 import 'package:senada/screens/HomePage/homepage_screen.dart';
 import 'package:senada/screens/auth/Login.dart';
 import 'package:senada/screens/auth/Register.dart';
@@ -26,7 +26,7 @@ class MainApp extends StatelessWidget {
         '/Register': (context) => Register(),
         '/ResetPassword': (context) => const ResetPassword(),
         '/MenuPage': (context) => CulturalShowPage(),
-        '/DetailPage': (context) => MyApp(),
+        '/DetailPage': (context) => DetailPage(),
 
 
         // Tambahkan rute lainnya di sini jika perlu
