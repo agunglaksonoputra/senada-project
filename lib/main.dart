@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:senada/screens/DetailPage/DetailPage.dart';
 import 'package:senada/screens/HomePage/homepage_screen.dart';
 import 'package:senada/screens/auth/Login.dart';
@@ -6,8 +7,14 @@ import 'package:senada/screens/auth/Register.dart';
 import 'package:senada/screens/auth/resetpassword.dart';
 import 'package:senada/screens/menuPage/menuPage.dart';
 import 'package:senada/Screens/reservation/reservation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+void main() async {
+  await dotenv.load();
+  await Supabase.initialize(
+      url: dotenv.env['SUPABASE_URL']!,
+      anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+  );
   runApp(const MainApp());
 }
 
