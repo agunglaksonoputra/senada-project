@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:senada/Screens/reservation/reservation.dart';
 
 void main() => runApp(const MyApp());
 
@@ -82,6 +83,41 @@ class MyApp extends StatelessWidget {
               ],
             ),
           ),
+        ),
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReservationPage(
+                      eventName: "Pertunjukan Tari Kecak & Api di Uluwatu",
+                    ),
+
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2A3663),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
+                child: const Text('BELI TIKET SEKARANG'),
+              ),
+            ),
+            Container(
+              height: 25,
+              width: double.infinity,
+              color: Colors.white,
+            ),
+          ],
         ),
       ),
     );
