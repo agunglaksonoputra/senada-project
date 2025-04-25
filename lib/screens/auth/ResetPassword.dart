@@ -1,7 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:senada/services/Auth/auth_service.dart'; // pastikan path sesuai
+import 'package:email_validator/email_validator.dart'; // install package ini
 
-class ResetPassword extends StatelessWidget {
+class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key});
+
+  @override
+  State<ResetPassword> createState() => _ResetPasswordState();
+}
+
+class _ResetPasswordState extends State<ResetPassword> {
+  final TextEditingController emailController = TextEditingController();
+  final authService = AuthService();
+  bool isLoading = false;
+
+  void _handleResetPassword() async {
+    final email = emailController.text.trim();
+
+    if (email.isEmpty || !EmailValidator.validate(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Masukkan email yang valid')),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      await authService.resetPassword(email: email);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Link reset password telah dikirim ke email'),
+        ),
+      );
+
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal reset password: $e')));
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +73,6 @@ class ResetPassword extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Email Field
             const Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             const Text(
@@ -35,44 +80,12 @@ class ResetPassword extends StatelessWidget {
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
             const SizedBox(height: 8),
-            _buildInputField(icon: Icons.email, hintText: 'Masukkan email'),
-
-            const SizedBox(height: 20),
-
-            // Password Baru
-            const Text(
-              'Password Baru',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Masukkan password yang sesuai',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
             _buildInputField(
-              icon: Icons.password,
-              hintText: 'Masukkan password',
-              isPassword: true,
+              icon: Icons.email,
+              hintText: 'Masukkan email',
+              controller: emailController,
             ),
-
             const SizedBox(height: 20),
-
-            // Konfirmasi Password
-            const Text(
-              'Masukkan Kembali Password',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            _buildInputField(
-              icon: Icons.password,
-              hintText: 'Masukkan password',
-              isPassword: true,
-            ),
-
-            const SizedBox(height: 30),
-
-            // Button Kirim
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -83,13 +96,14 @@ class ResetPassword extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: () {
-                  // Kirim permintaan reset password
-                },
-                child: const Text(
-                  'Kirim',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
+                onPressed: isLoading ? null : _handleResetPassword,
+                child:
+                    isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                          'Kirim',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
               ),
             ),
           ],
@@ -121,7 +135,7 @@ class ResetPassword extends StatelessWidget {
   Widget _buildInputField({
     required IconData icon,
     required String hintText,
-    bool isPassword = false,
+    TextEditingController? controller,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -129,12 +143,13 @@ class ResetPassword extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextField(
-        obscureText: isPassword,
+        controller: controller,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.grey),
           hintText: hintText,
           border: InputBorder.none,
         ),
+        keyboardType: TextInputType.emailAddress,
       ),
     );
   }

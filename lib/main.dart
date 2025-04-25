@@ -12,8 +12,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   await dotenv.load();
   await Supabase.initialize(
-      url: dotenv.env['SUPABASE_URL']!,
-      anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
   runApp(const MainApp());
 }
@@ -32,10 +32,10 @@ class MainApp extends StatelessWidget {
         '/': (context) => const HomePage(),
         '/Login': (context) => const Login(),
         '/Register': (context) => Register(),
-        '/ResetPassword': (context) => const ResetPassword(),
+        '/ResetPassword': (context) => ResetPassword(),
         '/MenuPage': (context) => CulturalShowPage(),
         '/DetailPage': (context) => MyApp(),
-        '/Reservation': (context) => const ReservationPage(eventName: '',),
+        '/Reservation': (context) => const ReservationPage(eventName: ''),
 
         // Tambahkan rute lainnya di sini jika perlu
       },
