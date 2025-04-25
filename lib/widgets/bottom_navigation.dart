@@ -34,8 +34,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Color(0xFF2A3663),
         unselectedItemColor: Colors.grey,
-        currentIndex: widget.selectedIndex,
         onTap: widget.onItemTapped, // Menggunakan callback dari widget parent
+        currentIndex: widget.selectedIndex,
+
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Komunitas'),

@@ -5,6 +5,7 @@ import 'package:senada/screens/HomePage/homepage_screen.dart';
 import 'package:senada/screens/auth/Login.dart';
 import 'package:senada/screens/auth/Register.dart';
 import 'package:senada/screens/auth/resetpassword.dart';
+import 'package:senada/screens/main_screen.dart';
 import 'package:senada/screens/menuPage/menuPage.dart';
 import 'package:senada/Screens/reservation/reservation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -29,10 +30,11 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'Inter'),
       initialRoute: '/', // rute awal aplikasi
       routes: {
-        '/': (context) => const HomePage(),
+        '/': (context) => MainScreen(),
         '/Login': (context) => const Login(),
         '/Register': (context) => Register(),
         '/ResetPassword': (context) => const ResetPassword(),
+        '/home': (context) => const HomePage(),
         '/MenuPage': (context) => CulturalShowPage(),
         '/DetailPage': (context) => MyApp(),
         '/Reservation': (context) => const ReservationPage(eventName: '',),

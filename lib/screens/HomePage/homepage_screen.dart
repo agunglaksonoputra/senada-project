@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:senada/models/events/event.dart';
 import 'package:senada/services/events/event_service.dart';
@@ -12,7 +14,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
   final EventService eventService = EventService(Supabase.instance.client);
   List<Event> _events = [];
 
@@ -20,20 +21,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     fetchEvents();
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    switch (index) {
-      case 0:
-      case 1:
-      case 2:
-        Navigator.pushReplacementNamed(context, '/Login');
-        break;
-    }
   }
 
   Future<void> fetchEvents() async {
@@ -50,25 +37,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFB2A55D),
-        toolbarHeight: 100,
-        title: Container(
-          width: MediaQuery.of(context).size.width * 0.5,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const TextField(
-            decoration: InputDecoration(
-              hintText: 'Search',
-              border: InputBorder.none,
-              icon: Icon(Icons.search, color: Colors.grey),
-            ),
-          ),
-        ),
-      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,10 +97,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
       ),
     );
   }
