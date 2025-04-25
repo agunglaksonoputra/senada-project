@@ -1,9 +1,6 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:senada/models/events/event.dart';
 import 'package:senada/services/events/event_service.dart';
-import 'package:senada/widgets/bottom_navigation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
@@ -37,6 +34,25 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFB2A55D),
+        toolbarHeight: 80,
+        title: Container(
+          width: MediaQuery.of(context).size.width * 0.5,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const TextField(
+            decoration: InputDecoration(
+              hintText: 'Search',
+              border: InputBorder.none,
+              icon: Icon(Icons.search, color: Colors.grey),
+            ),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,6 +74,7 @@ class _HomePageState extends State<HomePage> {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildCategoryItem('Tari\nTradisional', Icons.self_improvement),
                   _buildCategoryItem('Musik\nDaerah', Icons.music_note),
@@ -86,9 +103,10 @@ class _HomePageState extends State<HomePage> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 10),
                       child: _buildEventCard(
-                        event.title ?? 'Judul tidak tersedia',
-                        event.description ?? 'Deskripsi tidak tersedia',
-                        event.thumbnail ?? 'https://via.placeholder.com/180x100',
+                        event.id,
+                        event.title,
+                        event.description,
+                        event.thumbnail,
                       ),
                     );
                   }).toList(),
@@ -125,10 +143,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildEventCard(String title, String description, String imageUrl) {
+  Widget _buildEventCard(int id, String title, String description, String imageUrl) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, '/MenuPage');
+        Navigator.pushNamed(
+          context,
+          '/MenuPage',
+          // arguments:
+          // {
+          //   'id': id,
+          // }
+        );
       },
       child: Container(
         width: 180,
@@ -172,6 +197,8 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     title,
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
                   Text(
