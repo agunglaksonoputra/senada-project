@@ -91,7 +91,10 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildCategoryItem('Tari\nTradisional', Icons.self_improvement),
+                  _buildCategoryItem(
+                    'Tari\nTradisional',
+                    Icons.self_improvement,
+                  ),
                   _buildCategoryItem('Musik\nDaerah', Icons.music_note),
                   _buildCategoryItem('Teater', Icons.theater_comedy),
                   _buildCategoryItem('Festival\nBudaya', Icons.celebration),
@@ -114,16 +117,18 @@ class _HomePageState extends State<HomePage> {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Row(
-                  children: _events.map((event) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: _buildEventCard(
-                        event.title ?? 'Judul tidak tersedia',
-                        event.description ?? 'Deskripsi tidak tersedia',
-                        event.thumbnail ?? 'https://via.placeholder.com/180x100',
-                      ),
-                    );
-                  }).toList(),
+                  children:
+                      _events.map((event) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: _buildEventCard(
+                            event.title ?? 'Judul tidak tersedia',
+                            event.description ?? 'Deskripsi tidak tersedia',
+                            event.thumbnail ??
+                                'https://via.placeholder.com/180x100',
+                          ),
+                        );
+                      }).toList(),
                 ),
               ),
             ),
@@ -192,12 +197,13 @@ class _HomePageState extends State<HomePage> {
                 height: 100,
                 width: 180,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  height: 100,
-                  width: 180,
-                  color: Colors.grey[300],
-                  child: Icon(Icons.broken_image, color: Colors.grey),
-                ),
+                errorBuilder:
+                    (context, error, stackTrace) => Container(
+                      height: 100,
+                      width: 180,
+                      color: Colors.grey[300],
+                      child: Icon(Icons.broken_image, color: Colors.grey),
+                    ),
               ),
             ),
             Container(
