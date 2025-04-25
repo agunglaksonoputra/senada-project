@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:senada/blocs/auth_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AccountPage extends StatefulWidget {
@@ -9,145 +11,167 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  final user = Supabase.instance.client.auth.currentUser;
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFB2A55D),
-        toolbarHeight: 80,
-        title: Text(
-          'SENADA',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontSize: 24,
+    return BlocProvider(
+      create: (_) =>
+      AuthBloc(supabase: Supabase.instance.client)..add(CheckAuthStatus()),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color(0xFFB2A55D),
+          toolbarHeight: 80,
+          title: Text(
+            'SENADA',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 24,
+            ),
           ),
         ),
-      ),
-      body: ListView(
-        scrollDirection: Axis.vertical,
-        children: [
-          Container(
-            color: Colors.grey.shade200,
-            child: Padding(
-              padding: EdgeInsets.all(20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Jelajahi Kesenian Daerah',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+        body: ListView(
+          scrollDirection: Axis.vertical,
+          children: [
+            Container(
+              color: Colors.grey.shade200,
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: BlocBuilder<AuthBloc, AppAuthState>(
+                  builder: (context, state) {
+                    if (state is Authenticated) {
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundImage: NetworkImage(
+                              'https://i.pravatar.cc/150?img=3', // ganti dengan URL foto user dari Supabase
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Agung Laksono Putra',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'alpsosial@gmail.com',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    }
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Jelajahi Kesenian Daerah',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Silahkan Login untuk mengkases fitur',
+                              style: TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Silahkan Login untuk mengkases fitur',
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/Login');
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: Color(0xFF2A3663),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20.0,
+                              vertical: 12.0,
+                            ),
+                          ),
+                          child: Text(
+                            'Login',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                )
+              ),
+            ),
+            Container(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Ketika Login akan muncul detail akun
+                    BlocBuilder<AuthBloc, AppAuthState>(
+                      builder: (context, state) {
+                        if (state is Authenticated) {
+                          return _buildOptionCard('Detail Akun', Icons.person);
+                        }
+                        return Container();
+                      },
+                    ),
+                    // Default
+                    _buildOptionCard('Tentang SENADA', Icons.info_outline),
+                  ],
+                ),
+              ),
+            ),
+
+            // Logout Button
+            BlocBuilder<AuthBloc, AppAuthState>(
+              builder: (context, state) {
+                if (state is Authenticated) {
+                  return Padding(
+                    padding: EdgeInsets.all(20),
+                    child: TextButton(
+                      onPressed: () {
+                        // Implementasikan aksi logout
+                        context.read<AuthBloc>().add(LogoutRequested());
+                      },
+                      style: TextButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          )),
+                      child: Text(
+                        'Logout',
                         style: TextStyle(
+                          color: Colors.white,
                           fontSize: 18,
                         ),
                       ),
-                    ],
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/Login');
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: Color(0xFF2A3663),
-                      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
                     ),
-                    child: Text(
-                      'Login',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                  );
+                }
+                return Container();
+              },
             ),
-          ),
-
-          // Ketika Auth
-          // Container(
-          //   child: Padding(
-          //     padding: EdgeInsets.all(20),
-          //     child: Row(
-          //       children: [
-          //         CircleAvatar(
-          //           radius: 30,
-          //           backgroundImage: NetworkImage(
-          //             'https://i.pravatar.cc/150?img=3', // ganti dengan URL foto user dari Supabase
-          //           ),
-          //         ),
-          //
-          //         SizedBox(width: 20),
-          //
-          //         Column(
-          //           crossAxisAlignment: CrossAxisAlignment.start,
-          //           children: [
-          //             Text(
-          //               'Agung Laksono Putra',
-          //               style: TextStyle(
-          //                 fontSize: 24,
-          //                 fontWeight: FontWeight.bold,
-          //               ),
-          //             ),
-          //             SizedBox(height: 8),
-          //             Text(
-          //               'alpsosial@gmail.com',
-          //               style: TextStyle(
-          //                 fontSize: 18,
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ),
-
-          Container(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildOptionCard('Detail Akun', Icons.person),
-                ],
-              ),
-            ),
-          ),
-
-          // Logout Button
-          Padding(
-            padding: EdgeInsets.all(20),
-            child: TextButton(
-                onPressed: () {},
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                )
-              ),
-                child: Text(
-                  'Logout',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
-                ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -156,14 +180,14 @@ class _AccountPageState extends State<AccountPage> {
     return InkWell(
       onTap: () {},
       child: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: Colors.grey.shade300,
-                width: 1,
-              ),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: Colors.grey.shade300,
+              width: 1,
             ),
           ),
+        ),
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           child: Row(
@@ -177,9 +201,7 @@ class _AccountPageState extends State<AccountPage> {
                   size: 28,
                 ),
               ),
-
               SizedBox(width: 16),
-
               Text(
                 title,
                 style: TextStyle(
@@ -189,7 +211,7 @@ class _AccountPageState extends State<AccountPage> {
               ),
             ],
           ),
-        )
+        ),
       ),
     );
   }

@@ -1,4 +1,4 @@
-import 'package:senada/models/events/event.dart';
+import 'package:senada/models/events/event_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EventService {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:senada/models/events/event.dart';
+import 'package:senada/models/events/event_model.dart';
 import 'package:senada/services/events/event_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
