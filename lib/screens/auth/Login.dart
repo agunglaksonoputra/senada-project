@@ -1,7 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
   const Login({super.key});
+
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authResponse = await Supabase.instance.client.auth
+          .signInWithPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          );
+
+      if (authResponse.user != null) {
+        Navigator.pushReplacementNamed(context, '/');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal login: ${e.toString()}')));
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +77,11 @@ class Login extends StatelessWidget {
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
             const SizedBox(height: 8),
-            _buildInputField(icon: Icons.email, hintText: 'Masukkan email'),
+            _buildInputField(
+              icon: Icons.email,
+              hintText: 'Masukkan email',
+              controller: _emailController,
+            ),
             const SizedBox(height: 20),
             const Text(
               'Password',
@@ -49,6 +96,7 @@ class Login extends StatelessWidget {
             _buildInputField(
               icon: Icons.password,
               hintText: 'Masukkan password',
+              controller: _passwordController,
               isPassword: true,
             ),
             const SizedBox(height: 10),
@@ -56,7 +104,6 @@ class Login extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: TextButton(
                 onPressed: () {
-                  // Navigasi ke reset password
                   Navigator.pushNamed(context, '/ResetPassword');
                 },
                 child: const Text(
@@ -70,27 +117,26 @@ class Login extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2A3663), // biru tua
+                  backgroundColor: const Color(0xFF2A3663),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: () {
-                  // Login logic atau navigasi
-                  Navigator.pushReplacementNamed(context, '/');
-                },
-                child: const Text(
-                  'Masuk',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
+                onPressed: _isLoading ? null : loginUser,
+                child:
+                    _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                          'Masuk',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
               ),
             ),
             const SizedBox(height: 20),
             Center(
               child: TextButton(
                 onPressed: () {
-                  // Navigasi ke halaman daftar
                   Navigator.pushNamed(context, '/Register');
                 },
                 child: const Text(
@@ -128,6 +174,7 @@ class Login extends StatelessWidget {
   Widget _buildInputField({
     required IconData icon,
     required String hintText,
+    required TextEditingController controller,
     bool isPassword = false,
   }) {
     return Container(
@@ -136,6 +183,7 @@ class Login extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextField(
+        controller: controller,
         obscureText: isPassword,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.grey),

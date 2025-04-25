@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -8,6 +9,7 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+  final user = Supabase.instance.client.auth.currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +61,6 @@ class _AccountPageState extends State<AccountPage> {
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: Color(0xFF2A3663),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
                       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
                     ),
                     child: Text(
@@ -123,13 +122,31 @@ class _AccountPageState extends State<AccountPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildOptionCard('Detail Akun', Icons.person),
-                  _buildOptionCard('Detail Akun', Icons.person),
                 ],
               ),
             ),
           ),
 
-
+          // Logout Button
+          Padding(
+            padding: EdgeInsets.all(20),
+            child: TextButton(
+                onPressed: () {},
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                )
+              ),
+                child: Text(
+                  'Logout',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+            ),
+          ),
         ],
       ),
     );

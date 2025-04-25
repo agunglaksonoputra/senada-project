@@ -31,10 +31,10 @@ class MainApp extends StatelessWidget {
       initialRoute: '/', // rute awal aplikasi
       routes: {
         '/': (context) => MainScreen(),
+        '/home': (context) => const HomePage(),
         '/Login': (context) => const Login(),
         '/Register': (context) => Register(),
         '/ResetPassword': (context) => const ResetPassword(),
-        '/home': (context) => const HomePage(),
         '/MenuPage': (context) => CulturalShowPage(),
         '/DetailPage': (context) => MyApp(),
         '/Reservation': (context) => const ReservationPage(eventName: '',),
