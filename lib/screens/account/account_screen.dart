@@ -11,6 +11,7 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -39,6 +40,7 @@ class _AccountPageState extends State<AccountPage> {
                 child: BlocBuilder<AuthBloc, AppAuthState>(
                   builder: (context, state) {
                     if (state is Authenticated) {
+                      final profile = state.profile;
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -53,7 +55,7 @@ class _AccountPageState extends State<AccountPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Agung Laksono Putra',
+                                profile.fullName,
                                 style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -61,7 +63,7 @@ class _AccountPageState extends State<AccountPage> {
                               ),
                               SizedBox(height: 8),
                               Text(
-                                'alpsosial@gmail.com',
+                                state.email,
                                 style: TextStyle(
                                   fontSize: 18,
                                 ),
@@ -131,7 +133,7 @@ class _AccountPageState extends State<AccountPage> {
                         if (state is Authenticated) {
                           return _buildOptionCard('Detail Akun', Icons.person);
                         }
-                        return Container();
+                        return SizedBox.shrink();
                       },
                     ),
                     // Default
@@ -153,10 +155,12 @@ class _AccountPageState extends State<AccountPage> {
                         context.read<AuthBloc>().add(LogoutRequested());
                       },
                       style: TextButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          )),
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 16,)
+                      ),
                       child: Text(
                         'Logout',
                         style: TextStyle(
@@ -167,7 +171,7 @@ class _AccountPageState extends State<AccountPage> {
                     ),
                   );
                 }
-                return Container();
+                return SizedBox.shrink();
               },
             ),
           ],

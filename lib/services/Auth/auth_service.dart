@@ -40,4 +40,10 @@ class AuthService {
   Future<void> resetPassword({required String email}) async {
     await supabase.auth.resetPasswordForEmail(email);
   }
+
+  String? getCurrentUserEmail() {
+    final sesion = supabase.auth.currentSession;
+    final user = sesion?.user;
+    return user?.email;
+  }
 }

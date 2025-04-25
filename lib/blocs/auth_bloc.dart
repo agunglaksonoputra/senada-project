@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:senada/models/users/profile_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class AuthEvent {}
@@ -13,7 +14,9 @@ class AuthInitial extends AppAuthState {}
 
 class Authenticated extends AppAuthState {
   final User user;
-  Authenticated(this.user);
+  final Profile profile;
+  final String email;
+  Authenticated(this.user, this.profile, this.email);
 }
 
 class Unauthenticated extends AppAuthState {}
@@ -22,10 +25,19 @@ class AuthBloc extends Bloc<AuthEvent, AppAuthState> {  // Updated to AppAuthSta
   final SupabaseClient supabase;
 
   AuthBloc({required this.supabase}) : super(AuthInitial()) {
-    on<CheckAuthStatus>((event, emit) {
+    on<CheckAuthStatus>((event, emit) async {
       final user = supabase.auth.currentUser;
+
       if (user != null) {
-        emit(Authenticated(user));
+        final profileResponse = await supabase
+            .from('profiles')
+            .select()
+            .eq('id', user.id)
+            .single();
+
+        final email = user.email!;
+        final profile = Profile.fromMap(profileResponse);
+        emit(Authenticated(user, profile, email));
       } else {
         emit(Unauthenticated());
       }
