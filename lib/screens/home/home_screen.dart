@@ -74,6 +74,7 @@ class _HomePageState extends State<HomePage> {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildCategoryItem('Tari\nTradisional', Icons.self_improvement),
                   _buildCategoryItem('Musik\nDaerah', Icons.music_note),
@@ -93,6 +94,33 @@ class _HomePageState extends State<HomePage> {
             ),
 
             // List Event Horizontal
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Row(
+                  children: _events.map((event) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: _buildEventCard(
+                        event.title,
+                        event.description,
+                        event.thumbnail,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+              child: Text(
+                'Jadwal Acara Terdekat',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
+
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Padding(
