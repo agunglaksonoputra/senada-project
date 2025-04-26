@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:senada/screens/HomePage/homepage_screen.dart';
+import 'package:senada/screens/home/home_screen.dart';
 import 'package:senada/screens/account/account_screen.dart';
 import 'package:senada/screens/community/community_screen.dart';
 import 'package:senada/widgets/bottom_navigation.dart';

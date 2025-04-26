@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:senada/screens/DetailPage/DetailPage.dart';
-import 'package:senada/screens/HomePage/homepage_screen.dart';
+import 'package:senada/screens/home/home_screen.dart';
 import 'package:senada/screens/auth/Login.dart';
 import 'package:senada/screens/auth/Register.dart';
 import 'package:senada/screens/auth/resetpassword.dart';

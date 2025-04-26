@@ -18,7 +18,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 80,
+      height: 100,
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -33,6 +33,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
       child: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Color(0xFF2A3663),
+        elevation: 20,
         unselectedItemColor: Colors.grey,
         onTap: widget.onItemTapped, // Menggunakan callback dari widget parent
         currentIndex: widget.selectedIndex,
