@@ -1,6 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:senada/services/Auth/auth_service.dart';
 
-class Register extends StatelessWidget {
+class Register extends StatefulWidget {
+  @override
+  State<Register> createState() => _RegisterState();
+}
+
+class _RegisterState extends State<Register> {
+  final fullNameController = TextEditingController();
+  final phoneController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  final authService =
+      AuthService(); // instance dari AuthService (pastikan kamu sudah punya class-nya)
+
+  bool isLoading = false;
+
+  @override
+  void dispose() {
+    fullNameController.dispose();
+    phoneController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleRegister() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      await authService.register(
+        fullName: fullNameController.text.trim(),
+        phoneNumber: phoneController.text.trim(),
+        email: emailController.text.trim(),
+        password: passwordController.text,
+        confirmPassword: confirmPasswordController.text,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Registrasi berhasil! Silakan verifikasi email.'),
+        ),
+      );
+
+      Navigator.pop(context); // kembali ke halaman sebelumnya
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal register: $e')));
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,51 +81,43 @@ class Register extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Nama Lengkap
             _buildLabel('Nama Lengkap', 'Masukkan nama lengkap dengan benar'),
             _buildInputField(
               icon: Icons.abc,
               hintText: 'Masukkan nama lengkap',
+              controller: fullNameController,
             ),
-
             const SizedBox(height: 20),
-
-            // No Handphone
             _buildLabel('No Handphone', 'Masukkan no handphone yang aktif'),
             _buildInputField(
               icon: Icons.phone,
               hintText: 'Masukkan no handphone',
+              controller: phoneController,
             ),
-
             const SizedBox(height: 20),
-
-            // Email
             _buildLabel('Email', 'Masukkan alamat email yang terdaftar'),
-            _buildInputField(icon: Icons.email, hintText: 'Masukkan email'),
-
+            _buildInputField(
+              icon: Icons.email,
+              hintText: 'Masukkan email',
+              controller: emailController,
+            ),
             const SizedBox(height: 20),
-
-            // Password
             _buildLabel('Password', 'Masukkan password yang sesuai'),
             _buildInputField(
               icon: Icons.password,
               hintText: 'Masukkan password',
+              controller: passwordController,
               isPassword: true,
             ),
-
             const SizedBox(height: 20),
-
-            // Konfirmasi Password
             _buildLabel('Masukkan Kembali Password', ''),
             _buildInputField(
               icon: Icons.password,
               hintText: 'Masukkan kembali password',
+              controller: confirmPasswordController,
               isPassword: true,
             ),
-
             const SizedBox(height: 30),
-
-            // Tombol Kirim
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -78,13 +128,14 @@ class Register extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: () {
-                  // Proses pendaftaran
-                },
-                child: const Text(
-                  'Kirim',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
+                onPressed: isLoading ? null : _handleRegister,
+                child:
+                    isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                          'Kirim',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
               ),
             ),
           ],
@@ -135,6 +186,7 @@ class Register extends StatelessWidget {
     required IconData icon,
     required String hintText,
     bool isPassword = false,
+    TextEditingController? controller,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -142,6 +194,7 @@ class Register extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextField(
+        controller: controller,
         obscureText: isPassword,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.grey),

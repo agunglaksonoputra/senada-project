@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:senada/widgets/bottom_navigation.dart';  // Import bottom navigation widget
+import 'package:senada/models/events/event_model.dart';
+import 'package:senada/services/events/event_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,22 +11,23 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;  // Menyimpan index yang dipilih pada bottom navigation bar
+  final EventService eventService = EventService(Supabase.instance.client);
+  List<Event> _events = [];
 
-  // Fungsi untuk menavigasi halaman berdasarkan index
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  @override
+  void initState() {
+    super.initState();
+    fetchEvents();
+  }
 
-    // Navigasi ke halaman sesuai index
-    switch (index) {
-      case 0:
-      case 1:
-      case 2:
-      case 3:
-        Navigator.pushReplacementNamed(context, '/Login');
-        break;
+  Future<void> fetchEvents() async {
+    try {
+      final events = await eventService.getTop5Events();
+      setState(() {
+        _events = events;
+      });
+    } catch (e) {
+      print('Error fetching events: $e');
     }
   }
 
@@ -54,10 +57,10 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Categories
+            // Kategori
             Container(
-              margin: EdgeInsets.all(20),
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
@@ -71,12 +74,8 @@ class _HomePageState extends State<HomePage> {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildCategoryItem(
-                    'Tari\nTradisional',
-                    Icons.self_improvement,
-                  ),
+                  _buildCategoryItem('Tari\nTradisional', Icons.self_improvement),
                   _buildCategoryItem('Musik\nDaerah', Icons.music_note),
                   _buildCategoryItem('Teater', Icons.theater_comedy),
                   _buildCategoryItem('Festival\nBudaya', Icons.celebration),
@@ -84,7 +83,8 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            Padding(
+            // Judul
+            const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
                 'Tempat pertunjukan populer',
@@ -92,53 +92,27 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
+            // List Event Horizontal
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Row(
-                  children: [
-                    // Card
-                    _buildEventCard(
-                      'Tari Kecak & Api Uluwatu',
-                      'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
-                      'assets/images/tari_kecak.jpg',
-                    ),
-                    SizedBox(width: 10),
-                    _buildEventCard(
-                      'Tari Kecak & Api Uluwatu',
-                      'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
-                      'assets/images/tari_kecak.jpg',
-                    ),
-                    SizedBox(width: 10),
-                    _buildEventCard(
-                      'Tari Kecak & Api Uluwatu',
-                      'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
-                      'assets/images/tari_kecak.jpg',
-                    ),
-                    SizedBox(width: 10),
-                    _buildEventCard(
-                      'Tari Kecak & Api Uluwatu',
-                      'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
-                      'assets/images/tari_kecak.jpg',
-                    ),
-                    SizedBox(width: 10),
-                    _buildEventCard(
-                      'Tari Kecak & Api Uluwatu',
-                      'Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan "cak, cak, cak" secara berirama tanpa iringan alat musik.',
-                      'assets/images/tari_kecak.jpg',
-                    ),
-                  ],
+                  children: _events.map((event) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: _buildEventCard(
+                        event.title,
+                        event.description,
+                        event.thumbnail,
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
             ),
           ],
         ),
-      ),
-
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _selectedIndex,  // Mengatur index yang dipilih
-        onItemTapped: _onItemTapped,  // Mengirimkan fungsi navigasi
       ),
     );
   }
@@ -150,8 +124,8 @@ class _HomePageState extends State<HomePage> {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF6F8878),
+            decoration: const BoxDecoration(
+              color: Color(0xFF6F8878),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: Colors.white, size: 30),
@@ -159,7 +133,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 8),
           Text(
             title,
-            style: TextStyle(fontSize: 12),
+            style: const TextStyle(fontSize: 12),
             textAlign: TextAlign.center,
           ),
         ],
@@ -167,24 +141,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildEventCard(String title, String description, String ImagePath) {
+  Widget _buildEventCard(String title, String description, String imageUrl) {
     return InkWell(
       onTap: () {
-        // Navigasi ke halaman lain saat card diklik
         Navigator.pushNamed(context, '/MenuPage');
       },
       child: Container(
         width: 180,
         decoration: BoxDecoration(
-          color: Colors.white, // Latar belakang putih
-          borderRadius: BorderRadius.circular(8), // Sudut melengkung
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(
-                0.1,
-              ), // Warna shadow dengan opacity
-              blurRadius: 5, // Jarak blur shadow
-              offset: Offset(0, 4), // Posisi shadow (horizontal, vertical)
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 5,
+              offset: Offset(0, 4),
             ),
           ],
         ),
@@ -196,11 +167,17 @@ class _HomePageState extends State<HomePage> {
                 topLeft: Radius.circular(8),
                 topRight: Radius.circular(8),
               ),
-              child: Image.asset(
-                ImagePath,
+              child: Image.network(
+                imageUrl,
                 height: 100,
                 width: 180,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  height: 100,
+                  width: 180,
+                  color: Colors.grey[300],
+                  child: Icon(Icons.broken_image, color: Colors.grey),
+                ),
               ),
             ),
             Container(
@@ -217,6 +194,8 @@ class _HomePageState extends State<HomePage> {
                     description,
                     textAlign: TextAlign.justify,
                     style: TextStyle(fontSize: 10),
+                    maxLines: 8,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
