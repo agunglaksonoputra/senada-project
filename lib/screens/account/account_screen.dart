@@ -72,51 +72,53 @@ class _AccountPageState extends State<AccountPage> {
                           ),
                         ],
                       );
+                    } else if (state is Unauthenticated) {
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Jelajahi Kesenian Daerah',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Silahkan Login untuk mengkases fitur',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/Login');
+                            },
+                            style: TextButton.styleFrom(
+                              backgroundColor: Color(0xFF2A3663),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20.0,
+                                vertical: 12.0,
+                              ),
+                            ),
+                            child: Text(
+                              'Login',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
                     }
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Jelajahi Kesenian Daerah',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Silahkan Login untuk mengkases fitur',
-                              style: TextStyle(
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/Login');
-                          },
-                          style: TextButton.styleFrom(
-                            backgroundColor: Color(0xFF2A3663),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20.0,
-                              vertical: 12.0,
-                            ),
-                          ),
-                          child: Text(
-                            'Login',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
+                    return SizedBox();
                   },
                 )
               ),
@@ -133,7 +135,7 @@ class _AccountPageState extends State<AccountPage> {
                         if (state is Authenticated) {
                           return _buildOptionCard('Detail Akun', Icons.person);
                         }
-                        return SizedBox.shrink();
+                        return SizedBox();
                       },
                     ),
                     // Default
@@ -171,7 +173,7 @@ class _AccountPageState extends State<AccountPage> {
                     ),
                   );
                 }
-                return SizedBox.shrink();
+                return SizedBox();
               },
             ),
           ],
