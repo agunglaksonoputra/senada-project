@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:senada/screens/DetailPage/DetailPage.dart';
+import 'package:senada/screens/detailPage/DetailPage.dart';
 import 'package:senada/screens/home/home_screen.dart';
 import 'package:senada/screens/auth/Login.dart';
 import 'package:senada/screens/auth/Register.dart';
