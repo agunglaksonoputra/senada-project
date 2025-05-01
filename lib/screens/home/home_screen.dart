@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:senada/models/events/event_model.dart';
+import 'package:senada/screens/menuPage/menuPage.dart';
 import 'package:senada/services/events/event_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -76,10 +77,10 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildCategoryItem('Tari\nTradisional', Icons.self_improvement),
-                  _buildCategoryItem('Musik\nDaerah', Icons.music_note),
-                  _buildCategoryItem('Teater', Icons.theater_comedy),
-                  _buildCategoryItem('Festival\nBudaya', Icons.celebration),
+                  _buildCategoryItem('Tari\nTradisional', Icons.self_improvement, 1, 'Pertunjukan Seni Tari'),
+                  _buildCategoryItem('Musik\nDaerah', Icons.music_note, 2, 'Pertunjukan Seni Musik'),
+                  _buildCategoryItem('Teater', Icons.theater_comedy, 3, 'Pertunjukan Teater'),
+                  _buildCategoryItem('Festival\nBudaya', Icons.celebration, 4, 'Pertunjukan Festival Budaya'),
                 ],
               ),
             ),
@@ -107,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                         event.description,
                         event.thumbnail,
                       ),
-                    );
+                    ); 
                   }).toList(),
                 ),
               ),
@@ -145,9 +146,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCategoryItem(String title, IconData icon) {
+  Widget _buildCategoryItem(String title, IconData icon, int categoryId, String titlePage) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CulturalShowPage(categoryId: categoryId, titlePage: titlePage), // Misal categoryId = 1
+          ),
+        );
+      },
       child: Column(
         children: [
           Container(

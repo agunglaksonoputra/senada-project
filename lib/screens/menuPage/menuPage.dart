@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(MaterialApp(
-    home: CulturalShowPage(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
+import 'package:senada/models/events/event_model.dart';
+import 'package:senada/services/events/event_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CulturalShowPage extends StatefulWidget {
-  const CulturalShowPage({super.key});
+  final int categoryId;
+  final String titlePage;
+
+  const CulturalShowPage({Key? key, required this.categoryId, required this.titlePage}) : super(key: key);
 
   @override
   _CulturalShowPageState createState() => _CulturalShowPageState();
 }
 
 class _CulturalShowPageState extends State<CulturalShowPage> {
+  final EventService eventService = EventService(Supabase.instance.client);
+
+  List<Event> allEvents = [];     // Semua event dari Supabase
+  List<Event> filteredEvents = []; // Event yang difilter berdasarkan daerah
+  bool isLoading = true;
+
   final List<String> daerahList = [
+    "SEMUA",
     "JAWA BARAT",
     "JAKARTA",
     "SUMATRA BARAT",
@@ -26,18 +32,48 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
     "BALI"
   ];
 
-  String selectedDaerah = "BALI";
+  String selectedDaerah = "SEMUA"; // Default
 
-  List<Map<String, String>> getShowList() {
-    if (selectedDaerah == "BALI") {
-      return List.generate(8, (_) => {
-            "title": "Tari Kecak & Api Uluwatu",
-            "description":
-                "Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan “cak, cak, cak” secara berirama tanpa iringan alat musik.",
-            "image": "assets/images/Frame28.png",
-          });
+  @override
+  void initState() {
+    super.initState();
+    fetchEvents();
+  }
+
+  Future<void> fetchEvents() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // 🔥 Fetch berdasarkan CategoryId
+      final data = await eventService.getEventsByCategoryId(widget.categoryId);
+
+      setState(() {
+        allEvents = data;
+        filteredEvents = List.from(allEvents); // Default semua tampil
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching events: $e');
+      setState(() {
+        isLoading = false;
+      });
     }
-    return [];
+  }
+
+  void filterEventsByDaerah() {
+    setState(() {
+      if (selectedDaerah == "SEMUA") {
+        filteredEvents = List.from(allEvents);
+      } else {
+        final daerahLower = selectedDaerah.toLowerCase();
+        filteredEvents = allEvents.where((event) {
+          final location = event.location?.toLowerCase() ?? '';
+          return location.contains(daerahLower);
+        }).toList();
+      }
+    });
   }
 
   void showDaerahDialog() {
@@ -49,42 +85,41 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
       builder: (_) {
         return SafeArea(
           child: SizedBox(
-            height: 400, // tinggi modal bisa disesuaikan
+            height: 400,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
                   title: Text('Pilih Daerah', style: TextStyle(fontWeight: FontWeight.bold)),
                   trailing: IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-
+                    icon: Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: daerahList.map((daerah) {
-                        return ListTile(
-                          title: Text(
-                            daerah,
-                            style: TextStyle(
-                              color: daerah == selectedDaerah ? Color(0xFF5F8B4C) : null,
-                              fontWeight: daerah == selectedDaerah ? FontWeight.bold : null,
-                            ),
+                  child: ListView.builder(
+                    itemCount: daerahList.length,
+                    itemBuilder: (context, index) {
+                      final daerah = daerahList[index];
+                      return ListTile(
+                        title: Text(
+                          daerah,
+                          style: TextStyle(
+                            color: daerah == selectedDaerah ? Color(0xFF5F8B4C) : null,
+                            fontWeight: daerah == selectedDaerah ? FontWeight.bold : null,
                           ),
-                          trailing: daerah == selectedDaerah
-                              ? Icon(Icons.check, color: Color(0xFF5F8B4C))
-                              : null,
-                          onTap: () {
-                            setState(() {
-                              selectedDaerah = daerah;
-                            });
-                            Navigator.pop(context);
-                          },
-                        );
-                      }).toList(),
-                    ),
+                        ),
+                        trailing: daerah == selectedDaerah
+                            ? Icon(Icons.check, color: Color(0xFF5F8B4C))
+                            : null,
+                        onTap: () {
+                          setState(() {
+                            selectedDaerah = daerah;
+                          });
+                          Navigator.pop(context);
+                          filterEventsByDaerah(); // 🔥 Langsung filter event
+                        },
+                      );
+                    },
                   ),
                 ),
               ],
@@ -97,14 +132,17 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
 
   @override
   Widget build(BuildContext context) {
-    final showList = getShowList();
-
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: Color(0xFFb2a55d),
         elevation: 0,
-        leading: Icon(Icons.arrow_back, color: Colors.black),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -138,72 +176,81 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Tempat Pertunjukan Seni Tari",
+              Text(widget.titlePage,
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               SizedBox(height: 10),
               Expanded(
-                child: ListView.builder(
-                  itemCount: showList.length,
-                  itemBuilder: (context, index) {
-                    final show = showList[index];
-                    return InkWell(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/DetailPage'); // ganti sesuai nama route kamu
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        padding: EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.03),
-                              blurRadius: 2,
-                              offset: Offset(0, 1),
-                            )
-                          ],
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Gambar di kiri
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.asset(
-                                show['image']!,
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            SizedBox(width: 10),
-
-                            // Judul dan Deskripsi
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    show['title']!,
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                child: isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : filteredEvents.isEmpty
+                        ? Center(child: Text('Tidak ada event.'))
+                        : ListView.builder(
+                            itemCount: filteredEvents.length,
+                            itemBuilder: (context, index) {
+                              final event = filteredEvents[index];
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(context, '/DetailPage'); // Sesuaikan dengan detail
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(bottom: 10),
+                                  padding: EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.03),
+                                        blurRadius: 2,
+                                        offset: Offset(0, 1),
+                                      )
+                                    ],
                                   ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    show['description']!,
-                                    style: TextStyle(fontSize: 11, color: Colors.grey[700]),
-                                    maxLines: 4,
-                                    overflow: TextOverflow.ellipsis,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          event.thumbnail,
+                                          width: 100,
+                                          height: 100,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return Container(
+                                              width: 100,
+                                              height: 100,
+                                              color: Colors.grey,
+                                              child: Icon(Icons.broken_image, color: Colors.white),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              event.title,
+                                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              event.description ?? '',
+                                              style: TextStyle(fontSize: 11, color: Colors.grey[700]),
+                                              maxLines: 4,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                                ),
+                              );
+                            },
+                          ),
               ),
             ],
           ),

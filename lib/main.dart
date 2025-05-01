@@ -35,7 +35,7 @@ class MainApp extends StatelessWidget {
         '/Login': (context) => const Login(),
         '/Register': (context) => Register(),
         '/ResetPassword': (context) => const ResetPassword(),
-        '/MenuPage': (context) => CulturalShowPage(),
+        '/MenuPage': (context) => CulturalShowPage(categoryId: 0, titlePage: ''),
         '/DetailPage': (context) => MyApp(),
         '/Reservation': (context) => const ReservationPage(eventName: '',),
 
