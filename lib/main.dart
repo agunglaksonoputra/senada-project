@@ -26,7 +26,7 @@ class MainApp extends StatelessWidget {
         '/Register': (context) => Register(),
         '/ResetPassword': (context) => const ResetPassword(),
         '/MenuPage': (context) => CulturalShowPage(),
-        '/DetailPage': (context) => MyApp(),
+        '/DetailPage': (context) => DetailPage(),
 
 
         // Tambahkan rute lainnya di sini jika perlu
