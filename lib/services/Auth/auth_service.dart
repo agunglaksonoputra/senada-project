@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
-import 'package:senada/models/users/user_model.dart';
+import 'package:senada/models/users/profile_model.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -23,7 +23,7 @@ class AuthService {
 
       // Kirim data ke API
       if (user != null) {
-        final userModel = UserModel(
+        final profile = Profile(
           uid: user.uid,
           email: user.email!,
           fullName: fullName,
@@ -34,7 +34,7 @@ class AuthService {
           final response = await http.post(
             Uri.parse('http://10.0.2.2:3000/api/user/add-user'),
             headers: {'Content-Type': 'application/json'},
-            body: json.encode(userModel.toJson()),
+            body: json.encode(profile.toJson()),
           );
 
           if (response.statusCode != 201) {

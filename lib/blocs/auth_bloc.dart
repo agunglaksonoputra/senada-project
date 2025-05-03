@@ -1,14 +1,26 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:senada/models/users/profile_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:senada/services/Auth/user_service.dart';
 
+
+// EVENTS
 abstract class AuthEvent {}
 
 class CheckAuthStatus extends AuthEvent {}
 
+class LoginRequested extends AuthEvent {
+  final String email;
+  final String password;
+
+  LoginRequested({required this.email, required this.password});
+}
+
 class LogoutRequested extends AuthEvent {}
 
-abstract class AppAuthState {}  // Renamed from AuthState
+
+// STATES
+abstract class AppAuthState {}
 
 class AuthInitial extends AppAuthState {}
 
@@ -16,39 +28,74 @@ class Authenticated extends AppAuthState {
   final User user;
   final Profile profile;
   final String email;
+
   Authenticated(this.user, this.profile, this.email);
 }
 
 class Unauthenticated extends AppAuthState {}
 
-class AuthBloc extends Bloc<AuthEvent, AppAuthState> {  // Updated to AppAuthState
-  final SupabaseClient supabase;
+class AuthError extends AppAuthState {
+  final String message;
+  AuthError(this.message);
+}
 
-  AuthBloc({required this.supabase}) : super(AuthInitial()) {
+
+// BLOC
+class AuthBloc extends Bloc<AuthEvent, AppAuthState> {
+  final FirebaseAuth firebaseAuth;
+  final UserService userService;
+
+  AuthBloc({
+    required this.firebaseAuth,
+    required this.userService,
+  }) : super(AuthInitial()) {
     on<CheckAuthStatus>((event, emit) async {
-      final user = supabase.auth.currentUser;
-
+      final user = firebaseAuth.currentUser;
       if (user != null) {
-        final profileResponse = await supabase
-            .from('profiles')
-            .select()
-            .eq('id', user.id)
-            .single();
+        try {
+          final uid = user.uid;
+          final profile = await userService.fetchProfile(uid);
 
-        final email = user.email!;
-        final profile = Profile.fromMap(profileResponse);
-        emit(Authenticated(user, profile, email));
+          // Pastikan profile tidak null dan lengkap
+          if (profile == null || profile.fullName == null) {
+            emit(AuthError('Profil pengguna tidak lengkap.'));
+            return;
+          }
+
+          final userEmail = user.email;
+
+          if (userEmail != null && userEmail.isNotEmpty) {
+            emit(Authenticated(user, profile, userEmail));
+          } else {
+            emit(AuthError('Email pengguna tidak valid.'));
+          }
+        } catch (e) {
+          emit(AuthError('Gagal memuat data profil: $e'));
+        }
       } else {
         emit(Unauthenticated());
       }
     });
 
+    on<LoginRequested>((event, emit) async {
+      emit(AuthInitial());
+      try {
+        await firebaseAuth.signInWithEmailAndPassword(
+          email: event.email,
+          password: event.password,
+        );
+        add(CheckAuthStatus());
+      } catch (e) {
+        emit(AuthError('Login gagal: ${e.toString()}'));
+      }
+    });
+
     on<LogoutRequested>((event, emit) async {
       try {
-        await supabase.auth.signOut();
+        await firebaseAuth.signOut();
         emit(Unauthenticated());
       } catch (e) {
-        print("Error signing out: $e");
+        emit(AuthError("Gagal logout: ${e.toString()}"));
       }
     });
   }

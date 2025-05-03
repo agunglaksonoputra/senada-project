@@ -31,7 +31,7 @@ class _LoginState extends State<Login> {
       //       password: _passwordController.text,
       //     );
 
-      if (authResponse != null) {
+      if (authResponse == null) {
         Navigator.pushReplacementNamed(context, '/');
       }
     } catch (e) {
