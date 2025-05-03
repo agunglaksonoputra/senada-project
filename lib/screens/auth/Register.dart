@@ -33,30 +33,48 @@ class _RegisterState extends State<Register> {
     });
 
     try {
-      await authService.register(
+      // Pengecekan password
+      if (passwordController.text != confirmPasswordController.text) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Password dan konfirmasi password tidak cocok!')),
+        );
+        setState(() {
+          isLoading = false;
+        });
+        return;
+      }
+
+      String? errorMessage = await authService.signUp(
         fullName: fullNameController.text.trim(),
         phoneNumber: phoneController.text.trim(),
         email: emailController.text.trim(),
         password: passwordController.text,
-        confirmPassword: confirmPasswordController.text,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registrasi berhasil! Silakan verifikasi email.'),
-        ),
-      );
+      if (errorMessage != null) {
+        // Registrasi gagal
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal register: $errorMessage')),
+        );
+      } else {
+        // Registrasi berhasil
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registrasi berhasil! Silakan verifikasi email.'),
+          ),
+        );
 
-      Navigator.pop(context); // kembali ke halaman sebelumnya
+        Navigator.of(context).pop();
+      }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal register: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal register: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
-
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override

@@ -1,5 +1,7 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:senada/firebase_options.dart';
 import 'package:senada/screens/DetailPage/DetailPage.dart';
 import 'package:senada/screens/home/home_screen.dart';
 import 'package:senada/screens/auth/Login.dart';
@@ -11,10 +13,14 @@ import 'package:senada/Screens/reservation/reservation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   await Supabase.initialize(
       url: dotenv.env['SUPABASE_URL']!,
       anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+  );
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const MainApp());
 }

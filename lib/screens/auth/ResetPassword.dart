@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:senada/services/Auth/auth_service.dart'; // pastikan path sesuai
-import 'package:email_validator/email_validator.dart'; // install package ini
+import 'package:senada/services/Auth/auth_service.dart';
+import 'package:email_validator/email_validator.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key});

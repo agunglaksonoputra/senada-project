@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:senada/services/Auth/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Login extends StatefulWidget {
@@ -11,6 +12,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
   bool _isLoading = false;
 
   Future<void> loginUser() async {
@@ -19,13 +21,17 @@ class _LoginState extends State<Login> {
     });
 
     try {
-      final authResponse = await Supabase.instance.client.auth
-          .signInWithPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-          );
+      final authResponse = await _authService.signIn(
+        email: _emailController.text.trim(),
+        password: _passwordController.text
+      );
+      // final authResponse = await Supabase.instance.client.auth
+      //     .signInWithPassword(
+      //       email: _emailController.text.trim(),
+      //       password: _passwordController.text,
+      //     );
 
-      if (authResponse.user != null) {
+      if (authResponse != null) {
         Navigator.pushReplacementNamed(context, '/');
       }
     } catch (e) {
