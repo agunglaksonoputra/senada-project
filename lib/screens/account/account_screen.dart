@@ -68,7 +68,7 @@ class _AccountPageBody extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            state.email,
+                            profile.email,
                             style: const TextStyle(fontSize: 18),
                           ),
                         ],

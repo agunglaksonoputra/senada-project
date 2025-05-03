@@ -27,9 +27,8 @@ class AuthInitial extends AppAuthState {}
 class Authenticated extends AppAuthState {
   final User user;
   final Profile profile;
-  final String email;
 
-  Authenticated(this.user, this.profile, this.email);
+  Authenticated(this.user, this.profile);
 }
 
 class Unauthenticated extends AppAuthState {}
@@ -56,19 +55,12 @@ class AuthBloc extends Bloc<AuthEvent, AppAuthState> {
           final uid = user.uid;
           final profile = await userService.fetchProfile(uid);
 
-          // Pastikan profile tidak null dan lengkap
-          if (profile == null || profile.fullName == null) {
+          if (profile == null) {
             emit(AuthError('Profil pengguna tidak lengkap.'));
             return;
           }
 
-          final userEmail = user.email;
-
-          if (userEmail != null && userEmail.isNotEmpty) {
-            emit(Authenticated(user, profile, userEmail));
-          } else {
-            emit(AuthError('Email pengguna tidak valid.'));
-          }
+          emit(Authenticated(user, profile));
         } catch (e) {
           emit(AuthError('Gagal memuat data profil: $e'));
         }
