@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:senada/services/Auth/auth_service.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:senada/widgets/input_field.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key});
@@ -10,12 +12,12 @@ class ResetPassword extends StatefulWidget {
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final authService = AuthService();
   bool isLoading = false;
 
   void _handleResetPassword() async {
-    final email = emailController.text.trim();
+    final email = _emailController.text.trim();
 
     if (email.isEmpty || !EmailValidator.validate(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,35 +57,36 @@ class _ResetPasswordState extends State<ResetPassword> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFFB2A55D),
+        toolbarHeight: 80,
         title: const Text(
           'Reset Password',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: 24,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const FaIcon(FontAwesomeIcons.angleLeft, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        elevation: 1,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            const Text(
-              'Masukkan alamat email yang terdaftar',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
-            _buildInputField(
-              icon: Icons.email,
-              hintText: 'Masukkan email',
-              controller: emailController,
+            buildInputContainer(
+              label: 'Email',
+              description: 'Masukkan alamat email yang terdaftar',
+              inputField: InputField(
+                  icon: FontAwesomeIcons.solidEnvelope,
+                  hintText: 'Masukkan email',
+                  controller: _emailController,
+              ),
             ),
             const SizedBox(height: 20),
             SizedBox(

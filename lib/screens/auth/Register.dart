@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:senada/services/Auth/auth_service.dart';
+import 'package:senada/widgets/input_field.dart';
 
 class Register extends StatefulWidget {
   @override
@@ -7,23 +9,22 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  final fullNameController = TextEditingController();
-  final phoneController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
-  final authService =
-      AuthService(); // instance dari AuthService (pastikan kamu sudah punya class-nya)
+  final _fullNameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final authService = AuthService();
 
   bool isLoading = false;
 
   @override
   void dispose() {
-    fullNameController.dispose();
-    phoneController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
+    _fullNameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -34,7 +35,7 @@ class _RegisterState extends State<Register> {
 
     try {
       // Pengecekan password
-      if (passwordController.text != confirmPasswordController.text) {
+      if (_passwordController.text != _confirmPasswordController.text) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Password dan konfirmasi password tidak cocok!')),
         );
@@ -45,10 +46,10 @@ class _RegisterState extends State<Register> {
       }
 
       String? errorMessage = await authService.signUp(
-        fullName: fullNameController.text.trim(),
-        phoneNumber: phoneController.text.trim(),
-        email: emailController.text.trim(),
-        password: passwordController.text,
+        fullName: _fullNameController.text.trim(),
+        phoneNumber: _phoneController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
       );
 
       if (errorMessage != null) {
@@ -83,57 +84,77 @@ class _RegisterState extends State<Register> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFFB2A55D),
+        toolbarHeight: 80,
         title: const Text(
           'Daftar SENADA',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: 24,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          icon: const FaIcon(FontAwesomeIcons.angleLeft, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
-        elevation: 1,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildLabel('Nama Lengkap', 'Masukkan nama lengkap dengan benar'),
-            _buildInputField(
-              icon: Icons.abc,
-              hintText: 'Masukkan nama lengkap',
-              controller: fullNameController,
+            buildInputContainer(
+              label: 'Nama Lengkap',
+              description: 'Masukkan nama lengkap dengan benar',
+              inputField: InputField(
+                icon: FontAwesomeIcons.font,
+                hintText: 'Masukkan nama lengkap',
+                controller: _fullNameController,
+              ),
             ),
             const SizedBox(height: 20),
-            _buildLabel('No Handphone', 'Masukkan no handphone yang aktif'),
-            _buildInputField(
-              icon: Icons.phone,
-              hintText: 'Masukkan no handphone',
-              controller: phoneController,
+            buildInputContainer(
+              label: 'No Handphone',
+              description: 'Masukkan no handphone yang aktif',
+              inputField: InputField(
+                icon: FontAwesomeIcons.phone,
+                hintText: 'Masukkan no handphone',
+                controller: _phoneController,
+              ),
             ),
             const SizedBox(height: 20),
-            _buildLabel('Email', 'Masukkan alamat email yang terdaftar'),
-            _buildInputField(
-              icon: Icons.email,
-              hintText: 'Masukkan email',
-              controller: emailController,
+            buildInputContainer(
+              label: 'Email',
+              description: 'Masukkan alamat email yang terdaftar',
+              inputField: InputField(
+                icon: FontAwesomeIcons.solidEnvelope,
+                hintText: 'Masukkan email',
+                controller: _emailController,
+              ),
             ),
             const SizedBox(height: 20),
-            _buildLabel('Password', 'Masukkan password yang sesuai'),
-            _buildInputField(
-              icon: Icons.password,
-              hintText: 'Masukkan password',
-              controller: passwordController,
-              isPassword: true,
+            buildInputContainer(
+              label: 'Password',
+              description: 'Masukkan password yang sesuai',
+              inputField: InputField(
+                icon: Icons.password,
+                hintText: 'Masukkan password',
+                controller: _passwordController,
+                isPasswordField: true,
+              ),
             ),
             const SizedBox(height: 20),
-            _buildLabel('Masukkan Kembali Password', ''),
-            _buildInputField(
-              icon: Icons.password,
-              hintText: 'Masukkan kembali password',
-              controller: confirmPasswordController,
-              isPassword: true,
+            buildInputContainer(
+              label: 'Masukkan Kembali Password',
+              inputField: InputField(
+                icon: Icons.password,
+                hintText: 'Masukkan kembali password',
+                controller: _confirmPasswordController,
+                isPasswordField: true,
+              ),
             ),
             const SizedBox(height: 30),
             SizedBox(
@@ -156,6 +177,7 @@ class _RegisterState extends State<Register> {
                         ),
               ),
             ),
+
           ],
         ),
       ),
@@ -177,47 +199,6 @@ class _RegisterState extends State<Register> {
               style: TextStyle(fontSize: 12, color: Colors.black54),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String title, String subtitle) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        if (subtitle.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 4.0),
-            child: Text(
-              subtitle,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-          ),
-        const SizedBox(height: 8),
-      ],
-    );
-  }
-
-  Widget _buildInputField({
-    required IconData icon,
-    required String hintText,
-    bool isPassword = false,
-    TextEditingController? controller,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: isPassword,
-        decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.grey),
-          hintText: hintText,
-          border: InputBorder.none,
         ),
       ),
     );

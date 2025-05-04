@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:senada/services/Auth/auth_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:senada/widgets/input_field.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -25,14 +26,9 @@ class _LoginState extends State<Login> {
         email: _emailController.text.trim(),
         password: _passwordController.text
       );
-      // final authResponse = await Supabase.instance.client.auth
-      //     .signInWithPassword(
-      //       email: _emailController.text.trim(),
-      //       password: _passwordController.text,
-      //     );
 
       if (authResponse == null) {
-        Navigator.pushReplacementNamed(context, '/');
+        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
       }
     } catch (e) {
       ScaffoldMessenger.of(
@@ -58,53 +54,49 @@ class _LoginState extends State<Login> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFFB2A55D),
+        toolbarHeight: 80,
         title: const Text(
           'Masuk ke SENADA',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: 24,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const FaIcon(FontAwesomeIcons.angleLeft, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        elevation: 1,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            const Text(
-              'Masukkan alamat email yang terdaftar',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
-            _buildInputField(
-              icon: Icons.email,
-              hintText: 'Masukkan email',
-              controller: _emailController,
+            buildInputContainer(
+              label: 'Email',
+              description: 'Masukkan alamat email yang terdaftar',
+              inputField: InputField(
+                icon: FontAwesomeIcons.solidEnvelope,
+                hintText: 'Masukkan Email',
+                controller: _emailController,
+              ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Password',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            buildInputContainer(
+              label: 'Password',
+              description: 'Masukkan password yang sesuai',
+              inputField: InputField(
+                icon: Icons.password,
+                hintText: 'Masukkan password',
+                controller: _passwordController,
+                isPasswordField: true,
+              ),
             ),
-            const SizedBox(height: 4),
-            const Text(
-              'Masukkan password yang sesuai',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
-            _buildInputField(
-              icon: Icons.password,
-              hintText: 'Masukkan password',
-              controller: _passwordController,
-              isPassword: true,
-            ),
+
             const SizedBox(height: 10),
             Align(
               alignment: Alignment.centerLeft,
@@ -172,29 +164,6 @@ class _LoginState extends State<Login> {
               style: TextStyle(fontSize: 12, color: Colors.black54),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputField({
-    required IconData icon,
-    required String hintText,
-    required TextEditingController controller,
-    bool isPassword = false,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: isPassword,
-        decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.grey),
-          hintText: hintText,
-          border: InputBorder.none,
         ),
       ),
     );
