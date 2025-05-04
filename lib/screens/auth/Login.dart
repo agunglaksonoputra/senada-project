@@ -54,7 +54,7 @@ class _LoginState extends State<Login> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFFB2A55D),
-        toolbarHeight: 80,
+        toolbarHeight: 60,
         title: const Text(
           'Masuk ke SENADA',
           style: TextStyle(

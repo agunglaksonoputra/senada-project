@@ -1,21 +1,31 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(MaterialApp(
-    home: CulturalShowPage(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:senada/models/events/event_model.dart';
+import 'package:senada/services/events/event_service.dart';
 
 class CulturalShowPage extends StatefulWidget {
-  const CulturalShowPage({super.key});
+  final int categoryId;
+  final String titlePage;
+
+  const CulturalShowPage({
+    Key? key,
+    required this.categoryId,
+    required this.titlePage,
+  }) : super(key: key);
 
   @override
-  _CulturalShowPageState createState() => _CulturalShowPageState();
+  State<CulturalShowPage> createState() => _CulturalShowPageState();
 }
 
 class _CulturalShowPageState extends State<CulturalShowPage> {
+  final EventService eventService = EventService();
+
+  List<Event> allEvents = [];
+  List<Event> filteredEvents = [];
+  bool isLoading = true;
+
   final List<String> daerahList = [
+    "SEMUA",
     "JAWA BARAT",
     "JAKARTA",
     "SUMATRA BARAT",
@@ -23,95 +33,119 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
     "JAWA TENGAH",
     "YOGYAKARTA",
     "BANTEN",
-    "BALI"
+    "BALI",
+    "LAMPUNG"
   ];
 
-  String selectedDaerah = "BALI";
+  String selectedDaerah = "SEMUA";
 
-  List<Map<String, String>> getShowList() {
-    if (selectedDaerah == "BALI") {
-      return List.generate(8, (_) => {
-            "title": "Tari Kecak & Api Uluwatu",
-            "description":
-                "Pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan “cak, cak, cak” secara berirama tanpa iringan alat musik.",
-            "image": "assets/images/Frame28.png",
-          });
+  @override
+  void initState() {
+    super.initState();
+    fetchEvents();
+  }
+
+  Future<void> fetchEvents() async {
+    setState(() => isLoading = true);
+    try {
+      final data = await eventService.getByCategory(widget.categoryId);
+      setState(() {
+        allEvents = data;
+        filteredEvents = List.from(allEvents);
+      });
+    } catch (e) {
+      print('Error fetching events: $e');
+    } finally {
+      setState(() => isLoading = false);
     }
-    return [];
+  }
+
+  void filterEventsByDaerah() {
+    setState(() {
+      if (selectedDaerah == "SEMUA") {
+        filteredEvents = List.from(allEvents);
+      } else {
+        filteredEvents = allEvents.where((event) {
+          final location = event.location?.toLowerCase() ?? '';
+          return location.contains(selectedDaerah.toLowerCase());
+        }).toList();
+      }
+    });
   }
 
   void showDaerahDialog() {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) {
-        return SafeArea(
-          child: SizedBox(
-            height: 400, // tinggi modal bisa disesuaikan
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  title: Text('Pilih Daerah', style: TextStyle(fontWeight: FontWeight.bold)),
-                  trailing: IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
+      builder: (_) => Container(
+        height: 500,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            _buildDialogHeader(),
+            const SizedBox(height: 20),
+            Expanded(
+              child: ListView.separated(
+                itemCount: daerahList.length,
+                separatorBuilder: (_, __) => const Divider(height: 0.5),
+                itemBuilder: (context, index) {
+                  final daerah = daerahList[index];
+                  final isSelected = daerah == selectedDaerah;
 
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: daerahList.map((daerah) {
-                        return ListTile(
-                          title: Text(
+                  return InkWell(
+                    onTap: () {
+                      setState(() => selectedDaerah = daerah);
+                      Navigator.pop(context);
+                      filterEventsByDaerah();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
                             daerah,
                             style: TextStyle(
-                              color: daerah == selectedDaerah ? Color(0xFF5F8B4C) : null,
-                              fontWeight: daerah == selectedDaerah ? FontWeight.bold : null,
+                              color: isSelected ? const Color(0xFF5F8B4C) : null,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              fontSize: 16,
                             ),
                           ),
-                          trailing: daerah == selectedDaerah
-                              ? Icon(Icons.check, color: Color(0xFF5F8B4C))
-                              : null,
-                          onTap: () {
-                            setState(() {
-                              selectedDaerah = daerah;
-                            });
-                            Navigator.pop(context);
-                          },
-                        );
-                      }).toList(),
+                          if (isSelected)
+                            const FaIcon(FontAwesomeIcons.check, color: Color(0xFF5F8B4C)),
+                        ],
+                      ),
                     ),
-                  ),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final showList = getShowList();
-
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: Color(0xFFb2a55d),
-        elevation: 0,
-        leading: Icon(Icons.arrow_back, color: Colors.black),
+        backgroundColor: const Color(0xFFb2a55d),
+        toolbarHeight: 60,
+        leading: IconButton(
+          icon: const FaIcon(FontAwesomeIcons.angleLeft, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             GestureDetector(
               onTap: showDaerahDialog,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(18),
@@ -119,11 +153,15 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.place, color: Color(0xFF5F8B4C), size: 16),
-                    SizedBox(width: 4),
+                    const Icon(Icons.place, color: Color(0xFF5F8B4C), size: 16),
+                    const SizedBox(width: 4),
                     Text(
                       selectedDaerah,
-                      style: TextStyle(color: Color(0xFF5F8B4C), fontSize: 13, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        color: Color(0xFF5F8B4C),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -132,83 +170,110 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
           ],
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Tempat Pertunjukan Seni Tari",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              SizedBox(height: 10),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: showList.length,
-                  itemBuilder: (context, index) {
-                    final show = showList[index];
-                    return InkWell(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/DetailPage'); // ganti sesuai nama route kamu
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        padding: EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.03),
-                              blurRadius: 2,
-                              offset: Offset(0, 1),
-                            )
-                          ],
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Gambar di kiri
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.asset(
-                                show['image']!,
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            SizedBox(width: 10),
-
-                            // Judul dan Deskripsi
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    show['title']!,
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    show['description']!,
-                                    style: TextStyle(fontSize: 11, color: Colors.grey[700]),
-                                    maxLines: 4,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.titlePage,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : filteredEvents.isEmpty
+                  ? const Center(child: Text('Tidak ada event.'))
+                  : ListView.builder(
+                itemCount: filteredEvents.length,
+                itemBuilder: (context, index) =>
+                    _buildEventCard(filteredEvents[index]),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+
+  Widget _buildDialogHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          'Pilih Daerah',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        InkWell(
+          onTap: () => Navigator.pop(context),
+          child: const FaIcon(FontAwesomeIcons.xmark),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEventCard(Event event) {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 5,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.horizontal(left: Radius.circular(8)),
+              child: Image.network(
+                event.thumbnail,
+                height: 100,
+                width: 100,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  height: 100,
+                  width: 100,
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.broken_image, color: Colors.grey),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      event.description,
+                      textAlign: TextAlign.justify,
+                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
 }

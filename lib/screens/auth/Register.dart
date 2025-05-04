@@ -84,7 +84,7 @@ class _RegisterState extends State<Register> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFFB2A55D),
-        toolbarHeight: 80,
+        toolbarHeight: 60,
         title: const Text(
           'Daftar SENADA',
           style: TextStyle(

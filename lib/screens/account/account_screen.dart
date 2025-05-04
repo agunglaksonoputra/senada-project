@@ -27,7 +27,7 @@ class _AccountPageBody extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFB2A55D),
-        toolbarHeight: 80,
+        toolbarHeight: 60,
         title: const Text(
           'SENADA',
           style: TextStyle(

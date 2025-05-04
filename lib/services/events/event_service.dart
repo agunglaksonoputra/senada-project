@@ -20,7 +20,7 @@ class EventService {
   }
 
   Future<List<Event>> getByCategory(int id) async {
-    final response = await http.get(Uri.parse('$baseUrl/events/$id'));
+    final response = await http.get(Uri.parse('$baseUrl/events/category/$id'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
