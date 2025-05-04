@@ -4,9 +4,10 @@ class Event {
   final String description;
   final String phoneNumber;
   final String location;
-  final String experience;
+  final String? experience;
   final String thumbnail;
   final DateTime createdAt;
+  final DateTime updateAt;
 
   Event({
     required this.id,
@@ -17,6 +18,7 @@ class Event {
     required this.experience,
     required this.thumbnail,
     required this.createdAt,
+    required this.updateAt
   });
 
   factory Event.fromMap(Map<String, dynamic> map) {
@@ -26,9 +28,10 @@ class Event {
       description: map['description'],
       phoneNumber: map['phone_number'],
       location: map['location'],
-      experience: map['experience'],
+      experience: map['experience'] ?? '',
       thumbnail: map['thumbnail'],
       createdAt: DateTime.parse(map['created_at']),
+      updateAt: DateTime.parse(map['updated_at']),
     );
   }
 
@@ -42,6 +45,7 @@ class Event {
       'experience': experience,
       'thumbnail': thumbnail,
       'created_at': createdAt.toIso8601String(),
+      'updated_at': updateAt.toIso8601String(),
     };
   }
 }

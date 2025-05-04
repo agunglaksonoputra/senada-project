@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:senada/models/events/event_model.dart';
 import 'package:senada/services/events/event_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -11,7 +12,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final EventService eventService = EventService(Supabase.instance.client);
+  final EventService eventService = EventService();
   List<Event> _events = [];
 
   @override
@@ -22,7 +23,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchEvents() async {
     try {
-      final events = await eventService.getTop5Events();
+      final events = await eventService.getTopEvent();
       setState(() {
         _events = events;
       });
@@ -48,7 +49,7 @@ class _HomePageState extends State<HomePage> {
             decoration: InputDecoration(
               hintText: 'Search',
               border: InputBorder.none,
-              icon: Icon(Icons.search, color: Colors.grey),
+              icon: FaIcon(FontAwesomeIcons.magnifyingGlass, color: Colors.grey, size: 18),
             ),
           ),
         ),
