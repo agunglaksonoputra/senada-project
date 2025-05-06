@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:senada/models/events/event_model.dart';
+import 'package:senada/screens/DetailPage/DetailPage.dart';
 import 'package:senada/screens/menuPage/menuPage.dart';
 import 'package:senada/services/events/event_service.dart';
 
@@ -111,9 +112,10 @@ class _HomePageState extends State<HomePage> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 10),
                       child: _buildEventCard(
-                        event.title,
-                        event.description,
-                        event.thumbnail,
+                        id: event.id,
+                        title: event.title,
+                        description: event.description,
+                        imageUrl: event.thumbnail,
                       ),
                     ); 
                   }).toList(),
@@ -138,9 +140,10 @@ class _HomePageState extends State<HomePage> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 10),
                       child: _buildEventCard(
-                        event.title,
-                        event.description,
-                        event.thumbnail,
+                          id: event.id,
+                          title: event.title,
+                          description: event.description,
+                          imageUrl: event.thumbnail,
                       ),
                     );
                   }).toList(),
@@ -184,10 +187,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildEventCard(String title, String description, String imageUrl) {
+  Widget _buildEventCard({
+    required int id,
+    required String title,
+    required String description,
+    required String imageUrl
+    }) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, '/MenuPage');
+        Navigator.pushNamed(context, '/DetailPage');
+        // Navigator.push(
+        //   context, MaterialPageRoute(
+        //     builder: (context) => MyApp(id: id)
+        //   ),
+        // ),
       },
       child: Container(
         width: 180,

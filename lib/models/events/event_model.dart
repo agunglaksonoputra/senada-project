@@ -30,8 +30,8 @@ class Event {
       location: map['location'],
       experience: map['experience'] ?? '',
       thumbnail: map['thumbnail'],
-      createdAt: DateTime.parse(map['created_at']),
-      updateAt: DateTime.parse(map['updated_at']),
+      createdAt: DateTime.parse(map['createdAt']),
+      updateAt: DateTime.parse(map['updatedAt']),
     );
   }
 
@@ -44,8 +44,8 @@ class Event {
       'location': location,
       'experience': experience,
       'thumbnail': thumbnail,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updateAt.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updateAt.toIso8601String(),
     };
   }
 }

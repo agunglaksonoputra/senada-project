@@ -7,7 +7,7 @@ class EventService {
   final String baseUrl = dotenv.env['BASE_URL']!;
 
   Future<List<Event>> getTopEvent() async {
-    final response = await http.get(Uri.parse('$baseUrl/events/top5'));
+    final response = await http.get(Uri.parse('$baseUrl/event/popular'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -20,7 +20,7 @@ class EventService {
   }
 
   Future<List<Event>> getByCategory(int id) async {
-    final response = await http.get(Uri.parse('$baseUrl/events/category/$id'));
+    final response = await http.get(Uri.parse('$baseUrl/event/category/$id'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -29,6 +29,17 @@ class EventService {
           .toList();
     } else {
       throw Exception('Gagal mengambil data');
+    }
+  }
+
+  Future<Event> getById(int id) async {
+    final response = await http.get(Uri.parse('$baseUrl/event/$id'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return Event.fromMap(data);
+    } else {
+      throw Exception('Gagal mengambil event');
     }
   }
 }

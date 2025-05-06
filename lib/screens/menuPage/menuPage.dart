@@ -214,8 +214,10 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
   }
 
   Widget _buildEventCard(Event event) {
-    return InkWell(
-      onTap: () {},
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/DetailPage');
+      },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
