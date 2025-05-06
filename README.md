@@ -23,4 +23,13 @@ Repositori ini adalah aplikasi mobile **Senada** yang dibangun menggunakan **Flu
 - **Firebase Authentication**: Untuk autentikasi pengguna.
 - **MySQL**: Untuk penyimpanan data backend, seperti informasi acara dan riwayat pemesanan.
 - **Midtrans**: Untuk sistem pembayaran tiket secara online.
+
+---
+
+## 👨‍💻 Contributor
+- [Agung Laksono Putra](https://github.com/agunglaksonoputra)
+- [Ahmad Rohman Nurrohim](https://github.com/illise)
+- [Adhitya Cahyadi](https://github.com/adhityacahyadi)
+- [Fadhil Raka Aulia](https://github.com/FadhilRaka)
+- [Fath Aulia Muhammad](https://github.com/fath-bot)
   
