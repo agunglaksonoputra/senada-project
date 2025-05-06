@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "575637237417",
+    "project_id": "tb-senada",
+    "storage_bucket": "tb-senada.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:575637237417:android:da1651d0ed287714f183b8",
+        "android_client_info": {
+          "package_name": "kel7.senada.senada"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDonXAXFnB-mDdYHZ3VlG9tJVxVxqT2VaU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

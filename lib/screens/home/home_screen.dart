@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:senada/models/events/event_model.dart';
+import 'package:senada/screens/DetailPage/DetailPage.dart';
+import 'package:senada/screens/menuPage/menuPage.dart';
 import 'package:senada/services/events/event_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,7 +13,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final EventService eventService = EventService(Supabase.instance.client);
+  final EventService eventService = EventService();
   List<Event> _events = [];
 
   @override
@@ -22,7 +24,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchEvents() async {
     try {
-      final events = await eventService.getTop5Events();
+      final events = await eventService.getTopEvent();
       setState(() {
         _events = events;
       });
@@ -34,24 +36,31 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         backgroundColor: const Color(0xFFB2A55D),
-        toolbarHeight: 100,
-        title: Container(
-          width: MediaQuery.of(context).size.width * 0.5,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
+        toolbarHeight: 60,
+        title: const Text(
+          'SENADA',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const TextField(
-            decoration: InputDecoration(
-              hintText: 'Search',
-              border: InputBorder.none,
-              icon: Icon(Icons.search, color: Colors.grey),
-            ),
+            fontSize: 24,
           ),
         ),
+        actions: <Widget> [
+          Padding(
+            padding: EdgeInsets.only(right: 20),
+            child: GestureDetector(
+              onTap: () {},
+              child: Icon(
+                FontAwesomeIcons.magnifyingGlass,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -76,10 +85,10 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildCategoryItem('Tari\nTradisional', Icons.self_improvement),
-                  _buildCategoryItem('Musik\nDaerah', Icons.music_note),
-                  _buildCategoryItem('Teater', Icons.theater_comedy),
-                  _buildCategoryItem('Festival\nBudaya', Icons.celebration),
+                  _buildCategoryItem('Tari\nTradisional', Icons.self_improvement, 1, 'Pertunjukan Seni Tari'),
+                  _buildCategoryItem('Musik\nDaerah', Icons.music_note, 2, 'Pertunjukan Seni Musik'),
+                  _buildCategoryItem('Teater', Icons.theater_comedy, 3, 'Pertunjukan Teater'),
+                  _buildCategoryItem('Festival\nBudaya', Icons.celebration, 4, 'Pertunjukan Festival Budaya'),
                 ],
               ),
             ),
@@ -103,11 +112,12 @@ class _HomePageState extends State<HomePage> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 10),
                       child: _buildEventCard(
-                        event.title,
-                        event.description,
-                        event.thumbnail,
+                        id: event.id,
+                        title: event.title,
+                        description: event.description,
+                        imageUrl: event.thumbnail,
                       ),
-                    );
+                    ); 
                   }).toList(),
                 ),
               ),
@@ -130,9 +140,10 @@ class _HomePageState extends State<HomePage> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 10),
                       child: _buildEventCard(
-                        event.title,
-                        event.description,
-                        event.thumbnail,
+                          id: event.id,
+                          title: event.title,
+                          description: event.description,
+                          imageUrl: event.thumbnail,
                       ),
                     );
                   }).toList(),
@@ -145,9 +156,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCategoryItem(String title, IconData icon) {
+  Widget _buildCategoryItem(String title, IconData icon, int categoryId, String titlePage) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CulturalShowPage(categoryId: categoryId, titlePage: titlePage), // Misal categoryId = 1
+          ),
+        );
+      },
       child: Column(
         children: [
           Container(
@@ -169,10 +187,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildEventCard(String title, String description, String imageUrl) {
+  Widget _buildEventCard({
+    required int id,
+    required String title,
+    required String description,
+    required String imageUrl
+    }) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, '/MenuPage');
+        Navigator.pushNamed(context, '/DetailPage');
+        // Navigator.push(
+        //   context, MaterialPageRoute(
+        //     builder: (context) => MyApp(id: id)
+        //   ),
+        // ),
       },
       child: Container(
         width: 180,

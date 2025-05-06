@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BottomNavBar extends StatefulWidget {
   final int selectedIndex;
@@ -39,9 +40,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
         currentIndex: widget.selectedIndex,
 
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Komunitas'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
+          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.house, size: 20), label: 'Beranda'),
+          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.userGroup, size: 20), label: 'Komunitas'),
+          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.solidUser, size: 20), label: 'Akun'),
         ],
       ),
     );
