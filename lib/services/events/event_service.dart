@@ -1,30 +1,45 @@
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:senada/models/events/event_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EventService {
-  final SupabaseClient supabaseClient;
+  final String baseUrl = dotenv.env['BASE_URL']!;
 
-  EventService(this.supabaseClient);
+  Future<List<Event>> getTopEvent() async {
+    final response = await http.get(Uri.parse('$baseUrl/event/popular'));
 
-  Future<List<Event>> getEvents() async {
-    final data = await supabaseClient
-        .from('events')
-        .select();
-
-    return (data as List)
-        .map((eventData) => Event.fromMap(eventData))
-        .toList();
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return (data as List)
+          .map((item) => Event.fromMap(item))
+          .toList();
+    } else {
+      throw Exception('Gagal mengambil data');
+    }
   }
 
-  Future<List<Event>> getTop5Events() async {
-    final data = await supabaseClient
-        .from('events')
-        .select()
-        .order('created_at', ascending: false)
-        .limit(5);
+  Future<List<Event>> getByCategory(int id) async {
+    final response = await http.get(Uri.parse('$baseUrl/event/category/$id'));
 
-    return (data as List)
-        .map((item) => Event.fromMap(item))
-        .toList();
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return (data as List)
+          .map((item) => Event.fromMap(item))
+          .toList();
+    } else {
+      throw Exception('Gagal mengambil data');
+    }
+  }
+
+  Future<Event> getById(int id) async {
+    final response = await http.get(Uri.parse('$baseUrl/event/$id'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return Event.fromMap(data);
+    } else {
+      throw Exception('Gagal mengambil event');
+    }
   }
 }
