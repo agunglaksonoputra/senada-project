@@ -1,123 +1,108 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:senada/Screens/reservation/reservation.dart';
+import 'package:senada/models/events/event_model.dart';
 
-void main() => runApp(const MyApp());
+import 'package:senada/services/events/event_service.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+// void main() => runApp(const MaterialApp(home: DetailPage(eventId: null,)));
+
+class DetailPage extends StatefulWidget {
+  final int eventId; // EventId parameter
+
+  const DetailPage({Key? key, required this.eventId}) : super(key: key);
+
+  @override
+  State<DetailPage> createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  final EventService eventService = EventService();
+  Event? _event;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchEvents();
+  }
+
+  Future<void> fetchEvents() async {
+    try {
+      final events = await eventService.getById(
+          widget.eventId); // Pastikan EventService ada dan benar
+      setState(() {
+        _event = events;
+      });
+    } catch (e) {
+      print('Error fetching events: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            color: Colors.white,
-            onPressed: () {
-              // Add your onPressed code here!
-            },
-          ),
-          backgroundColor: Color(0xFFB2A55D),
+    if (_event == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final event = _event!;
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          color: Colors.white,
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                ImageSection(image: 'assets/images/tari_kecak.jpg'),
-                TitleSection(
-                  name: "Pertunjukan Tari Kecak & Api di Uluwatu",
-                  rating: 10,
-                  reviewCount: 190,
-                ),
-                // RatingDetail(
-                //   rating: 10,
-                //   reviewCount: 190,
-                // ),
-                TextSection(
-                  deskripsi:
-                      "Tari Kecak dan Api Uluwatu adalah pertunjukan seni tradisional Bali yang menggabungkan tarian, drama, dan unsur spiritual. Tarian ini dikenal karena kekuatan vokal para penarinya yang duduk melingkar dan melantunkan 'cak, cak, cak' secara berirama tanpa iringan alat musik. Pertunjukan ini menggambarkan kisah epik Ramayana, khususnya bagian di mana Rama berjuang menyelamatkan Sita dari Rahwana, dibantu oleh Hanoman.",
-                ),
-
-                JadwalSection(
-                  judul: "Jadwal Pertunjukan",
-                  listHari: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'sun'],
-                  listTanggal: ['1', '2', '3', '4', '5', '6', '7'],
-                ),
-
-                JamSection(
-                  listJam: [
-                    "13.00",
-                    "13.00",
-                    "13.00",
-                    "13.00",
-                    "13.00",
-                    "13.00",
-                    "13.00",
-                    "13.00",
-                    "13.00",
-                  ],
-                  judul: "Waktu Pertunjukan",
-                ),
-
-                InformasiSection(
-                  name: "Detail Informasi",
-                  telepon: "+62 8123456789",
-                  lokasi:
-                      "Pura Uluwatu. Pecatu, Kuta Selatan, Kabupaten Badung, Bali, Indonesia",
-                ),
-
-                TextSection(
-                  deskripsi: "Langsung saksikan Tari Kecak dan Api di Pura Uluwatu, pertunjukan budaya paling ikonik di Bali! Bayangkan duduk di tepi tebing, ditemani suara deburan ombak dan matahari terbenam, sambil menikmati kisah epik Ramayana yang ditampilkan secara dramatis dan penuh semangat.\n\n"
-                      "\u2022 Rasakan atmosfer yang magis saat puluhan penari pria bersuara 'cak-cak-cak' dalam harmoni, membentuk irama yang bikin merinding \n"
-                      "\u2022 Saksikan aksi para penari menari di atas bara api, sebuah pertunjukan berani yang memukau \n"
-                      "\u2022 Nggak cuma nonton – kamu bisa larut dalam suasana dan diajak ikut teriak bersama, seru banget! \n"
-                      "\u2022 Wajib bawa kamera – momen sunset, para penari, dan pura Uluwatu jadi latar Instagramable yang nggak ada duanya \n\n"
-
-                    "Kalau kamu lagi liburan ke Bali, Pura Luhur Uluwatu adalah destinasi wajib. Tari Kecak dan Api di sini bukan hanya tontonan, tapi pengalaman budaya yang menyentuh hati."
-
-                    "Rasakan keajaiban budaya Bali, langsung dari tempat paling eksotis di pulau dewata. Jangan sampai ketinggalan ya!",
-                )
-              ],
-            ),
-          ),
-        ),
-        bottomNavigationBar: Column(
-          mainAxisSize: MainAxisSize.min,
+        backgroundColor: const Color(0xFFB2A55D),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
           children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ReservationPage(
-                      eventName: "Pertunjukan Tari Kecak & Api di Uluwatu",
-                    ),
-
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2A3663),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
-                  ),
-                ),
-                child: const Text('BELI TIKET SEKARANG'),
-              ),
+            ImageSection(event.thumbnail ?? ''),
+            TitleSection(
+              name: event.title,
+              rating: 8.5,
+              reviewCount: 100,
             ),
-            Container(
-              height: 25,
-              width: double.infinity,
-              color: Colors.white,
+            TextSection(deskripsi: event.description ?? ''),
+            InformasiSection(
+              name: event.title,
+              lokasi: event.location ?? '',
+              telepon: event.phoneNumber ?? '',
             ),
+            // JadwalSection(
+            //   listHari: event.schedule?.days ?? [],
+            //   listTanggal: event.schedule?.dates ?? [],
+            //   listJam: event.schedule?.times ?? [],
+            //   judulHari: 'Pilih Hari',
+            //   judulJam: 'Pilih Jam',
+            // ),
           ],
+        ),
+      ),
+      bottomNavigationBar: SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                const ReservationPage(
+                  eventName: "Pertunjukan Tari Kecak & Api di Uluwatu",
+                ),
+              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF2A3663),
+            foregroundColor: Colors.white,
+          ),
+          child: const Text('BELI TIKET SEKARANG'),
         ),
       ),
     );
@@ -125,79 +110,59 @@ class MyApp extends StatelessWidget {
 }
 
 class ImageSection extends StatelessWidget {
-  const ImageSection({super.key, this.image});
-
-  final String? image;
+  final String image;
+  const ImageSection(this.image, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(image!, width: 415, fit: BoxFit.cover);
+    return Image.network(image, width: double.infinity, fit: BoxFit.cover);
   }
 }
 
 class TitleSection extends StatelessWidget {
+  final String name;
+  final double rating;
+  final int reviewCount;
+
   const TitleSection({
     super.key,
     required this.name,
-    this.rating,
-    this.reviewCount,
+    required this.rating,
+    required this.reviewCount,
   });
-
-  final String name;
-  final double? rating;
-  final int? reviewCount;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 20, bottom: 10, left: 20),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Text(
-              name,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
-          ),
+          Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+          const SizedBox(height: 10),
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.only(bottom: 5),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFb2a55d),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.star, color: Colors.white, size: 20),
-                      const SizedBox(width: 1),
-                      Text(
-                        '${rating?.toStringAsFixed(0)}/10',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFb2a55d),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.star, color: Colors.white, size: 20),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$rating/10',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 10),
               Text(
                 '$reviewCount ulasan',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -208,39 +173,77 @@ class TitleSection extends StatelessWidget {
 }
 
 class TextSection extends StatelessWidget {
-  const TextSection({super.key, this.deskripsi});
-
-  final String? deskripsi;
+  final String deskripsi;
+  const TextSection({super.key, required this.deskripsi});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 5, left: 20, right: 20),
-      child: Text(
-        deskripsi!,
-        softWrap: true,
-        textAlign: TextAlign.justify,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Text(deskripsi, textAlign: TextAlign.justify, style: const TextStyle(fontSize: 14)),
+    );
+  }
+}
+
+class InformasiSection extends StatelessWidget {
+  final String name;
+  final String lokasi;
+  final String telepon;
+
+  const InformasiSection({
+    super.key,
+    required this.name,
+    required this.lokasi,
+    required this.telepon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Icon(Icons.location_on, color: Color(0xFF3C5932), size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(lokasi, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Icon(Icons.phone, color: Color(0xFF3C5932), size: 20),
+              const SizedBox(width: 10),
+              Text(telepon, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
 class JadwalSection extends StatefulWidget {
+  final List<String> listHari;
+  final List<String> listTanggal;
+  final List<String> listJam;
+  final String judulHari;
+  final String judulJam;
+
   const JadwalSection({
     super.key,
     required this.listHari,
     required this.listTanggal,
-    required this.judul,
+    required this.listJam,
+    required this.judulHari,
+    required this.judulJam,
   });
-
-  final List<String> listHari;
-  final List<String> listTanggal;
-
-  final String judul;
 
   @override
   State<JadwalSection> createState() => _JadwalSectionState();
@@ -248,243 +251,113 @@ class JadwalSection extends StatefulWidget {
 
 class _JadwalSectionState extends State<JadwalSection> {
   int? _hariPilih;
+  int? _jamPilih;
 
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Judul Hari
         Padding(
           padding: const EdgeInsets.only(left: 20, bottom: 5),
-          child: Text(
-            widget.judul,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
+          child: Text(widget.judulHari, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ),
-
+        // Pilihan Hari & Tanggal
         Container(
           height: 55,
-          margin: const EdgeInsets.only(top: 10, left: 15, bottom: 15),
-          child: ListView(
+          margin: const EdgeInsets.only(bottom: 15, left: 10),
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            children: List.generate(widget.listHari.length, (index) {
-              String hari = widget.listHari[index];
-              String tanggal = widget.listTanggal[index];
+            itemCount: widget.listHari.length,
+            itemBuilder: (context, index) {
+              final hari = widget.listHari[index];
+              final tanggal = widget.listTanggal[index];
 
               return GestureDetector(
                 onTap: () {
                   setState(() {
-                    if (_hariPilih == index) {
-                      _hariPilih = null;
-                    } else {
-                      _hariPilih = index;
-                    }
+                    _hariPilih = (_hariPilih == index) ? null : index;
                   });
                 },
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 5),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 17,
-                    vertical: 10,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 10),
                   width: 70,
                   decoration: BoxDecoration(
-                    color:
-                        _hariPilih == index
-                            ? const Color(0xFF3C5932)
-                            : Colors.grey[300],
+                    color: _hariPilih == index ? const Color(0xFF3C5932) : Colors.grey[300],
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         hari,
                         style: TextStyle(
-                          color:
-                              _hariPilih == index ? Colors.white : Colors.black,
-                          fontSize: 12,
+                          color: _hariPilih == index ? Colors.white : Colors.black,
                           fontWeight: FontWeight.w900,
+                          fontSize: 12,
                         ),
                       ),
                       Text(
                         tanggal,
                         style: TextStyle(
-                          color:
-                              _hariPilih == index ? Colors.white : Colors.black,
-                          fontSize: 12,
+                          color: _hariPilih == index ? Colors.white : Colors.black,
                           fontWeight: FontWeight.w900,
+                          fontSize: 12,
                         ),
                       ),
                     ],
                   ),
                 ),
               );
-            }),
+            },
           ),
         ),
-      ],
-    );
-  }
-}
-
-class JamSection extends StatefulWidget {
-  const JamSection({super.key, required this.listJam, required this.judul});
-
-  final List<String> listJam;
-  final String judul;
-
-  @override
-  State<JamSection> createState() => _JamSectionState();
-}
-
-class _JamSectionState extends State<JamSection> {
-  int? _jamPilih;
-
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+        // Judul Jam
         Padding(
           padding: const EdgeInsets.only(left: 20, bottom: 5),
-          child: Text(
-            widget.judul,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
+          child: Text(widget.judulJam, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ),
-
+        // Pilihan Jam
         Container(
           height: 40,
-          margin: const EdgeInsets.only(left: 15, bottom: 15),
-          child: ListView(
+          margin: const EdgeInsets.only(bottom: 15, left: 10),
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            children: List.generate(widget.listJam.length, (index) {
-              String jam = widget.listJam[index];
+            itemCount: widget.listJam.length,
+            itemBuilder: (context, index) {
+              final jam = widget.listJam[index];
 
               return GestureDetector(
                 onTap: () {
                   setState(() {
-                    if (_jamPilih == index) {
-                      _jamPilih = null;
-                    } else {
-                      _jamPilih = index;
-                    }
+                    _jamPilih = (_jamPilih == index) ? null : index;
                   });
                 },
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 5),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 17,
-                    vertical: 10,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 10),
                   width: 70,
                   decoration: BoxDecoration(
-                    color:
-                        _jamPilih == index
-                            ? const Color(0xFF3C5932)
-                            : Colors.grey[300],
+                    color: _jamPilih == index ? const Color(0xFF3C5932) : Colors.grey[300],
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        jam,
-                        style: TextStyle(
-                          color:
-                              _jamPilih == index ? Colors.white : Colors.black,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  child: Center(
+                    child: Text(
+                      jam,
+                      style: TextStyle(
+                        color: _jamPilih == index ? Colors.white : Colors.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
+                    ),
                   ),
                 ),
               );
-            }),
+            },
           ),
         ),
       ],
-    );
-  }
-}
-
-class InformasiSection extends StatelessWidget {
-  const InformasiSection({
-    super.key,
-    required this.name,
-    this.lokasi,
-    this.telepon,
-  });
-
-  final String name;
-  final String? lokasi;
-  final String? telepon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only( bottom: 10, left: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Text(
-              name,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.only(right: 40, bottom: 5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.location_on,
-                      color: Color(0xFF3C5932),
-                      size: 20,
-                    ),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        lokasi!,
-                        softWrap: true,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10), // jarak antar baris
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.phone, color: Color(0xFF3C5932), size: 20),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        telepon!,
-                        softWrap: true,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

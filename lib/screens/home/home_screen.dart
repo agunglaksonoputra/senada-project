@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:senada/models/events/event_model.dart';
-import 'package:senada/screens/DetailPage/DetailPage.dart';
+import 'package:senada/screens/detailPage/DetailPage.dart';
 import 'package:senada/screens/menuPage/menuPage.dart';
 import 'package:senada/services/events/event_service.dart';
 
@@ -195,12 +195,12 @@ class _HomePageState extends State<HomePage> {
     }) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, '/DetailPage');
-        // Navigator.push(
-        //   context, MaterialPageRoute(
-        //     builder: (context) => MyApp(id: id)
-        //   ),
-        // ),
+        // Navigator.pushNamed(context, '/DetailPage');
+        Navigator.push(
+          context, MaterialPageRoute(
+          builder: (context) => DetailPage(eventId: id), // Kirim eventId ke DetailPage
+          ),
+        );
       },
       child: Container(
         width: 180,
