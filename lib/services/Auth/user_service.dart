@@ -7,7 +7,7 @@ class UserService {
   final String baseUrl = dotenv.env['BASE_URL']!;
 
   Future<Profile> fetchProfile(String uid) async {
-    final response = await http.get(Uri.parse('$baseUrl/user/$uid'));
+    final response = await http.get(Uri.parse('$baseUrl/users/$uid'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

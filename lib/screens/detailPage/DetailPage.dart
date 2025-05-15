@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:senada/Screens/reservation/reservation.dart';
 import 'package:senada/models/events/event_model.dart';
-
+import 'package:senada/models/ticket/ticket_model.dart';
 import 'package:senada/services/events/event_service.dart';
-
-// void main() => runApp(const MaterialApp(home: DetailPage(eventId: null,)));
+import 'package:senada/services/tickets/ticket_service.dart';
 
 class DetailPage extends StatefulWidget {
-  final int eventId; // EventId parameter
+  final int eventId;
 
   const DetailPage({Key? key, required this.eventId}) : super(key: key);
 
@@ -17,31 +17,86 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   final EventService eventService = EventService();
+  final TicketService ticketService = TicketService();
   Event? _event;
+  List<Ticket> _tickets = [];
+  Map<DateTime, List<Ticket>> _ticketsByDate = {};
+  DateTime? _selectedDate;
+  Ticket? _selectedTicket;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchEvents();
+    _fetchEventAndTickets();
   }
 
-  Future<void> fetchEvents() async {
+  Future<void> _fetchEventAndTickets() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      final events = await eventService.getById(
-          widget.eventId); // Pastikan EventService ada dan benar
+      // Fetch event details
+      final event = await eventService.getById(widget.eventId);
+
+      // Fetch tickets for this event
+      final tickets = await ticketService.getTicketEvent(widget.eventId);
+
+      // Group tickets by date
+      final ticketsByDate = <DateTime, List<Ticket>>{};
+      for (var ticket in tickets) {
+        final date = DateTime(
+          ticket.sessionStartDate.year,
+          ticket.sessionStartDate.month,
+          ticket.sessionStartDate.day,
+        );
+
+        if (!ticketsByDate.containsKey(date)) {
+          ticketsByDate[date] = [];
+        }
+        ticketsByDate[date]!.add(ticket);
+      }
+
       setState(() {
-        _event = events;
+        _event = event;
+        _tickets = tickets;
+        _ticketsByDate = ticketsByDate;
+
+        // Select the first date by default if available
+        if (ticketsByDate.isNotEmpty) {
+          _selectedDate = ticketsByDate.keys.first;
+        }
+
+        _isLoading = false;
       });
     } catch (e) {
-      print('Error fetching events: $e');
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_event == null) {
+    if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_event == null) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            color: Colors.white,
+            onPressed: () => Navigator.pop(context),
+          ),
+          backgroundColor: const Color(0xFFB2A55D),
+        ),
+        body: const Center(child: Text('Event tidak ditemukan')),
       );
     }
 
@@ -52,16 +107,15 @@ class _DetailPageState extends State<DetailPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           color: Colors.white,
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: const Color(0xFFB2A55D),
       ),
       body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ImageSection(event.thumbnail ?? ''),
+            ImageSection(event.thumbnail),
             TitleSection(
               name: event.title,
               rating: 8.5,
@@ -73,49 +127,215 @@ class _DetailPageState extends State<DetailPage> {
               lokasi: event.location ?? '',
               telepon: event.phoneNumber ?? '',
             ),
-            // JadwalSection(
-            //   listHari: event.schedule?.days ?? [],
-            //   listTanggal: event.schedule?.dates ?? [],
-            //   listJam: event.schedule?.times ?? [],
-            //   judulHari: 'Pilih Hari',
-            //   judulJam: 'Pilih Jam',
-            // ),
+            if (_ticketsByDate.isNotEmpty) _buildDateSelectionSection(),
+            if (_selectedDate != null) _buildTicketSelectionSection(event),
+            const SizedBox(height: 20),
           ],
-        ),
-      ),
-      bottomNavigationBar: SizedBox(
-        width: double.infinity,
-        height: 50,
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                const ReservationPage(
-                  eventName: "Pertunjukan Tari Kecak & Api di Uluwatu",
-                ),
-              ),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2A3663),
-            foregroundColor: Colors.white,
-          ),
-          child: const Text('BELI TIKET SEKARANG'),
         ),
       ),
     );
   }
+
+  Widget _buildDateSelectionSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 20, top: 15, bottom: 10),
+          child: Text(
+            'Jadwal pertunjukan',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+        SizedBox(
+          height: 50,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            itemCount: _ticketsByDate.keys.length,
+            itemBuilder: (context, index) {
+              final date = _ticketsByDate.keys.elementAt(index);
+              final isSelected = _selectedDate == date;
+              final dateFormat = DateFormat('d MMM');
+              final dayFormat = DateFormat('E');
+
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedDate = date;
+                    _selectedTicket = null; // Reset selected ticket
+                  });
+                },
+                child: Container(
+                  width: 70,
+                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFF3C5932) : const Color(0xFFEEEEEE),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        dayFormat.format(date)[0].toUpperCase() +
+                            dayFormat.format(date).substring(1, 3),
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                      Text(
+                        dateFormat.format(date),
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTicketSelectionSection(Event event) {
+    final ticketsForSelectedDate = _ticketsByDate[_selectedDate] ?? [];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 20, top: 15, bottom: 10),
+          child: Text(
+            'Tiket pertunjukan',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: ticketsForSelectedDate.map((ticket) {
+              final isAvailable = ticket.isActive && !ticket.isSold;
+              final isSelected = _selectedTicket == ticket;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: isSelected ? const Color(0xFF3C5932) : Colors.grey.shade300,
+                    width: isSelected ? 2 : 2,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                  color: isAvailable
+                      ? Colors.white
+                      : const Color(0xFFF5F5F5),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              ticket.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${ticket.sessionStartTime} - ${ticket.sessionEndTime}',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: isAvailable
+                          ? ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => ReservationPage(eventName: event.title)
+                          ));
+                          setState(() {
+                            _selectedTicket = ticket;
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: isSelected
+                              ? const Color(0xFF3C5932)
+                              : const Color(0xFF3C5932),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          minimumSize: const Size(70, 36),
+                        ),
+                        child: const Text('Pilih'),
+                      )
+                          : Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'Tidak tersedia',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
 }
 
+// Keep original widget components
 class ImageSection extends StatelessWidget {
   final String image;
   const ImageSection(this.image, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Image.network(image, width: double.infinity, fit: BoxFit.cover);
+    return Image.network(
+      image,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        height: 250,
+        width: double.infinity,
+        color: Colors.grey[300],
+        child: Icon(Icons.broken_image, color: Colors.grey),
+      ),
+    );
   }
 }
 
@@ -225,139 +445,6 @@ class InformasiSection extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class JadwalSection extends StatefulWidget {
-  final List<String> listHari;
-  final List<String> listTanggal;
-  final List<String> listJam;
-  final String judulHari;
-  final String judulJam;
-
-  const JadwalSection({
-    super.key,
-    required this.listHari,
-    required this.listTanggal,
-    required this.listJam,
-    required this.judulHari,
-    required this.judulJam,
-  });
-
-  @override
-  State<JadwalSection> createState() => _JadwalSectionState();
-}
-
-class _JadwalSectionState extends State<JadwalSection> {
-  int? _hariPilih;
-  int? _jamPilih;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Judul Hari
-        Padding(
-          padding: const EdgeInsets.only(left: 20, bottom: 5),
-          child: Text(widget.judulHari, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        ),
-        // Pilihan Hari & Tanggal
-        Container(
-          height: 55,
-          margin: const EdgeInsets.only(bottom: 15, left: 10),
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.listHari.length,
-            itemBuilder: (context, index) {
-              final hari = widget.listHari[index];
-              final tanggal = widget.listTanggal[index];
-
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _hariPilih = (_hariPilih == index) ? null : index;
-                  });
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5),
-                  padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 10),
-                  width: 70,
-                  decoration: BoxDecoration(
-                    color: _hariPilih == index ? const Color(0xFF3C5932) : Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        hari,
-                        style: TextStyle(
-                          color: _hariPilih == index ? Colors.white : Colors.black,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 12,
-                        ),
-                      ),
-                      Text(
-                        tanggal,
-                        style: TextStyle(
-                          color: _hariPilih == index ? Colors.white : Colors.black,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        // Judul Jam
-        Padding(
-          padding: const EdgeInsets.only(left: 20, bottom: 5),
-          child: Text(widget.judulJam, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        ),
-        // Pilihan Jam
-        Container(
-          height: 40,
-          margin: const EdgeInsets.only(bottom: 15, left: 10),
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.listJam.length,
-            itemBuilder: (context, index) {
-              final jam = widget.listJam[index];
-
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _jamPilih = (_jamPilih == index) ? null : index;
-                  });
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5),
-                  padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 10),
-                  width: 70,
-                  decoration: BoxDecoration(
-                    color: _jamPilih == index ? const Color(0xFF3C5932) : Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    child: Text(
-                      jam,
-                      style: TextStyle(
-                        color: _jamPilih == index ? Colors.white : Colors.black,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
     );
   }
 }
