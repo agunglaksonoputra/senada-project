@@ -21,7 +21,7 @@ Repositori ini adalah aplikasi mobile **Senada** yang dibangun menggunakan **Flu
 
 - **Flutter**: Framework untuk membangun aplikasi mobile untuk iOS dan Android.
 - **Firebase Authentication**: Untuk autentikasi pengguna.
-- **MySQL**: Untuk penyimpanan data backend, seperti informasi acara dan riwayat pemesanan.
+- **SQLite**: Untuk penyimpanan data backend, seperti informasi acara dan riwayat pemesanan.
 - **Midtrans**: Untuk sistem pembayaran tiket secara online.
 
 ---
