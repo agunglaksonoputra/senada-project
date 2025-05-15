@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:senada/models/events/event_model.dart';
+import 'package:senada/screens/DetailPage/DetailPage.dart';
 import 'package:senada/services/events/event_service.dart';
 
 class CulturalShowPage extends StatefulWidget {
@@ -216,7 +217,11 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
   Widget _buildEventCard(Event event) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, '/DetailPage');
+        Navigator.push(
+          context, MaterialPageRoute(
+          builder: (context) => DetailPage(eventId: event.id), // Kirim eventId ke DetailPage
+          ),
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),

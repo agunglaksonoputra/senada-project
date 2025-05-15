@@ -42,7 +42,7 @@ class MainApp extends StatelessWidget {
         '/Register': (context) => Register(),
         '/ResetPassword': (context) => const ResetPassword(),
         '/MenuPage': (context) => CulturalShowPage(categoryId: 0, titlePage: ''),
-        '/DetailPage': (context) => MyApp(),
+        // '/DetailPage': (context) => DetailPage(),
         '/Reservation': (context) => const ReservationPage(eventName: '',),
 
         // Tambahkan rute lainnya di sini jika perlu
