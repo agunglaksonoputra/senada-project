@@ -162,7 +162,7 @@ class _HomePageState extends State<HomePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CulturalShowPage(categoryId: categoryId, titlePage: titlePage), // Misal categoryId = 1
+            builder: (context) => CulturalShowPage(categoryId: categoryId, titlePage: titlePage),
           ),
         );
       },
@@ -198,7 +198,7 @@ class _HomePageState extends State<HomePage> {
         // Navigator.pushNamed(context, '/DetailPage');
         Navigator.push(
           context, MaterialPageRoute(
-          builder: (context) => DetailPage(eventId: id), // Kirim eventId ke DetailPage
+          builder: (context) => DetailPage(eventId: id),
           ),
         );
       },

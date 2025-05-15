@@ -6,7 +6,7 @@ import 'package:senada/models/ticket/ticket_model.dart';
 class TicketService {
   final String baseUrl = dotenv.env['BASE_URL']!;
 
-  Future<List<Ticket>> getTicketEvent(int eventId) async {
+  Future<List<Ticket>?> getTicketEvent(int eventId) async {
     final response = await http.get(Uri.parse('$baseUrl/tickets/$eventId'));
 
     if (response.statusCode == 200) {
@@ -22,6 +22,8 @@ class TicketService {
       tickets.sort((a, b) => a.sessionStartDate.compareTo(b.sessionStartDate));
 
       return tickets;
+    } else if (response.statusCode == 404) {
+      return null;
     } else {
       throw Exception('Gagal mengambil data');
     }

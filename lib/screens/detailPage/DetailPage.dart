@@ -37,11 +37,31 @@ class _DetailPageState extends State<DetailPage> {
     });
 
     try {
-      // Fetch event details
       final event = await eventService.getById(widget.eventId);
 
-      // Fetch tickets for this event
+      // Cek apakah event null
+      if (event == null) {
+        setState(() {
+          _event = null;
+          _tickets = [];
+          _ticketsByDate = {};
+          _isLoading = false;
+        });
+        return;
+      }
+
       final tickets = await ticketService.getTicketEvent(widget.eventId);
+
+      // Cek apakah ticket null atau kosong
+      if (tickets == null || tickets.isEmpty) {
+        setState(() {
+          _event = event;
+          _tickets = [];
+          _ticketsByDate = {};
+          _isLoading = false;
+        });
+        return;
+      }
 
       // Group tickets by date
       final ticketsByDate = <DateTime, List<Ticket>>{};
@@ -51,32 +71,27 @@ class _DetailPageState extends State<DetailPage> {
           ticket.sessionStartDate.month,
           ticket.sessionStartDate.day,
         );
-
-        if (!ticketsByDate.containsKey(date)) {
-          ticketsByDate[date] = [];
-        }
-        ticketsByDate[date]!.add(ticket);
+        ticketsByDate.putIfAbsent(date, () => []).add(ticket);
       }
 
       setState(() {
         _event = event;
         _tickets = tickets;
         _ticketsByDate = ticketsByDate;
-
-        // Select the first date by default if available
-        if (ticketsByDate.isNotEmpty) {
-          _selectedDate = ticketsByDate.keys.first;
-        }
-
+        _selectedDate = ticketsByDate.isNotEmpty ? ticketsByDate.keys.first : null;
         _isLoading = false;
       });
     } catch (e) {
       print('Error fetching data: $e');
       setState(() {
         _isLoading = false;
+        _event = null;
+        _tickets = [];
+        _ticketsByDate = {};
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -127,8 +142,27 @@ class _DetailPageState extends State<DetailPage> {
               lokasi: event.location ?? '',
               telepon: event.phoneNumber ?? '',
             ),
+            // Jika tiket tersedia, tampilkan pilihan tanggal dan tiket
             if (_ticketsByDate.isNotEmpty) _buildDateSelectionSection(),
-            if (_selectedDate != null) _buildTicketSelectionSection(event),
+            if (_ticketsByDate.isNotEmpty && _selectedDate != null)
+              _buildTicketSelectionSection(event),
+
+            // Jika tiket kosong, tampilkan pesan
+            if (_ticketsByDate.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Center(
+                  child: Text(
+                    'Tiket tidak tersedia',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ),
+              ),
+
             const SizedBox(height: 20),
           ],
         ),

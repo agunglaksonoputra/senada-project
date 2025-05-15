@@ -19,6 +19,17 @@ class EventService {
     }
   }
 
+  Future<Event> getById(int id) async {
+    final response = await http.get(Uri.parse('$baseUrl/events/$id'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return Event.fromMap(data);
+    } else {
+      throw Exception('Gagal mengambil event');
+    }
+  }
+
   Future<List<Event>> getByCategory(int id) async {
     final response = await http.get(Uri.parse('$baseUrl/events/category/$id'));
 
@@ -29,17 +40,6 @@ class EventService {
           .toList();
     } else {
       throw Exception('Gagal mengambil data');
-    }
-  }
-
-  Future<Event> getById(int id) async {
-    final response = await http.get(Uri.parse('$baseUrl/event/$id'));
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return Event.fromMap(data);
-    } else {
-      throw Exception('Gagal mengambil event');
     }
   }
 }
