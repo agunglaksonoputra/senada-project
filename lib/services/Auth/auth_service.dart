@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:senada/models/users/profile_model.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   // SIGN UP
   Future<String?> signUp({
@@ -21,27 +23,21 @@ class AuthService {
       );
       User? user = result.user;
 
-      // Kirim data ke API
       if (user != null) {
-        final profile = Profile(
-          uid: user.uid,
-          email: user.email!,
-          fullName: fullName,
-          phoneNumber: phoneNumber,
-        );
-
+        // Simpan data ke Firestore
         try {
-          final response = await http.post(
-            Uri.parse('http://10.0.2.2:3000/api/users/'),
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode(profile.toJson()),
-          );
-
-          if (response.statusCode != 201) {
-            return 'Gagal kirim data user ke API: ${response.statusCode}';
-          }
-        } catch (apiError) {
-          return "Error saat mengirim ke API: $apiError";
+          await firestore
+              .collection('users')
+              .doc(user.uid)
+              .set({
+            'email': email,
+            'fullName': fullName,
+            'phoneNumber': phoneNumber,
+            'role': 'user',
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        } catch (firestoreError) {
+          return "Gagal simpan ke Firestore: $firestoreError";
         }
       } else {
         return 'User tidak ditemukan';
@@ -61,13 +57,34 @@ class AuthService {
     required String password,
   }) async {
     try {
-      await _auth.signInWithEmailAndPassword(
+      // Login ke Firebase Auth
+      UserCredential result = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return null; // sukses
+      User? user = result.user;
+
+      // Ambil data dari Firestore
+      if (user != null) {
+        DocumentSnapshot userDoc = await firestore
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        if (!userDoc.exists) {
+          return 'Data user tidak ditemukan di Firestore';
+        }
+
+        // Jika perlu, bisa simpan data ke local storage / provider
+        // final data = userDoc.data() as Map<String, dynamic>;
+        // print('User data: $data');
+      }
+
+      return null; // Sukses
     } on FirebaseAuthException catch (e) {
       return e.message;
+    } catch (e) {
+      return e.toString();
     }
   }
 
@@ -86,6 +103,16 @@ class AuthService {
       return null;
     } on FirebaseAuthException catch (e) {
       return e.message;
+    }
+  }
+
+  Future<User?> checkUser() async {
+    User? user = _auth.currentUser;
+
+    if (user != null) {
+      return user;
+    } else {
+      return null;
     }
   }
 }

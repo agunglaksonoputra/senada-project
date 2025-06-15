@@ -1,19 +1,19 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:senada/firebase_options.dart';
-import 'package:senada/screens/DetailPage/DetailPage.dart';
+import 'package:senada/screens/about.dart';
 import 'package:senada/screens/home/home_screen.dart';
 import 'package:senada/screens/auth/Login.dart';
 import 'package:senada/screens/auth/Register.dart';
 import 'package:senada/screens/auth/resetpassword.dart';
 import 'package:senada/screens/main_screen.dart';
-import 'package:senada/screens/menuPage/menuPage.dart';
-import 'package:senada/Screens/reservation/reservation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID');
   await dotenv.load();
   await Supabase.initialize(
       url: dotenv.env['SUPABASE_URL']!,
@@ -41,9 +41,7 @@ class MainApp extends StatelessWidget {
         '/Login': (context) => const Login(),
         '/Register': (context) => Register(),
         '/ResetPassword': (context) => const ResetPassword(),
-        '/MenuPage': (context) => CulturalShowPage(categoryId: 0, titlePage: ''),
-        // '/DetailPage': (context) => DetailPage(),
-        '/Reservation': (context) => const ReservationPage(eventName: '',),
+        '/about': (context) => const AboutPage(),
 
         // Tambahkan rute lainnya di sini jika perlu
       },

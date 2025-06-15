@@ -25,7 +25,7 @@ class Profile {
     return Profile(
       uid: map['uid'] ?? '', // Menangani null dengan nilai default
       email: map['email'] ?? '', // Menangani null dengan nilai default
-      fullName: map['full_name'] ?? '', // Menangani null dengan nilai default
+      fullName: map['fullName'] ?? '', // Menangani null dengan nilai default
       phoneNumber: map['phone_number'], // phoneNumber bisa null
     );
   }

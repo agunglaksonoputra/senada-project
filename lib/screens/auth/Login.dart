@@ -24,16 +24,22 @@ class _LoginState extends State<Login> {
     try {
       final authResponse = await _authService.signIn(
         email: _emailController.text.trim(),
-        password: _passwordController.text
+        password: _passwordController.text,
       );
 
       if (authResponse == null) {
+        // Login berhasil
         Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+      } else {
+        // authResponse berisi pesan error dari signIn()
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal login: $authResponse')),
+        );
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal login: ${e.toString()}')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: ${e.toString()}')),
+      );
     } finally {
       setState(() {
         _isLoading = false;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:senada/screens/history/history.dart';
 import 'package:senada/screens/home/home_screen.dart';
 import 'package:senada/screens/account/account_screen.dart';
 import 'package:senada/screens/community/community_screen.dart';
@@ -13,7 +14,8 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   final List<Widget> ScreenList = const [
     HomePage(),
-    CommunityPage(),
+    // CommunityPage(),
+    HistoryPage(),
     AccountPage(),
   ];
 

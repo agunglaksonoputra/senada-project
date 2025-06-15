@@ -41,7 +41,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
         items: const [
           BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.house, size: 20), label: 'Beranda'),
-          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.userGroup, size: 20), label: 'Komunitas'),
+          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.receipt, size: 20), label: 'History'),
           BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.solidUser, size: 20), label: 'Akun'),
         ],
       ),

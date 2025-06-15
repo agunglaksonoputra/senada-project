@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchEvents() async {
     try {
-      final events = await eventService.getTopEvent();
+      final events = await eventService.getEvent();
       setState(() {
         _events = events;
       });
@@ -85,10 +85,10 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildCategoryItem('Tari\nTradisional', Icons.self_improvement, 1, 'Pertunjukan Seni Tari'),
-                  _buildCategoryItem('Musik\nDaerah', Icons.music_note, 2, 'Pertunjukan Seni Musik'),
-                  _buildCategoryItem('Teater', Icons.theater_comedy, 3, 'Pertunjukan Teater'),
-                  _buildCategoryItem('Festival\nBudaya', Icons.celebration, 4, 'Pertunjukan Festival Budaya'),
+                  _buildCategoryItem('Tari\nTradisional', Icons.self_improvement, 'kt1', 'Pertunjukan Seni Tari'),
+                  _buildCategoryItem('Musik\nDaerah', Icons.music_note, 'kt2', 'Pertunjukan Seni Musik'),
+                  _buildCategoryItem('Teater', Icons.theater_comedy, 'kt3', 'Pertunjukan Teater'),
+                  _buildCategoryItem('Festival\nBudaya', Icons.celebration, 'kt4', 'Pertunjukan Festival Budaya'),
                 ],
               ),
             ),
@@ -156,13 +156,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCategoryItem(String title, IconData icon, int categoryId, String titlePage) {
+  Widget _buildCategoryItem(String title, IconData icon, String categoryId, String titlePage) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CulturalShowPage(categoryId: categoryId, titlePage: titlePage), // Misal categoryId = 1
+            builder: (context) => CulturalShowPage(categoryId: categoryId, titlePage: titlePage),
           ),
         );
       },
@@ -188,17 +188,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildEventCard({
-    required int id,
+    required String id,
     required String title,
     required String description,
     required String imageUrl
     }) {
     return InkWell(
       onTap: () {
-        // Navigator.pushNamed(context, '/DetailPage');
         Navigator.push(
           context, MaterialPageRoute(
-          builder: (context) => DetailPage(eventId: id), // Kirim eventId ke DetailPage
+          builder: (context) => DetailPage(eventId: id),
           ),
         );
       },

@@ -14,7 +14,7 @@ class AccountPage extends StatelessWidget {
         firebaseAuth: FirebaseAuth.instance,
         userService: UserService(),
       )..add(CheckAuthStatus()),
-      child: const _AccountPageBody(),
+      child: _AccountPageBody(),
     );
   }
 }
@@ -37,112 +37,34 @@ class _AccountPageBody extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView(
-        children: [
-          Container(
-            color: Colors.grey.shade200,
-            padding: const EdgeInsets.all(20),
-            child: BlocBuilder<AuthBloc, AppAuthState>(
-              builder: (context, state) {
-                if (state is Authenticated) {
-                  final profile = state.profile;
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const CircleAvatar(
-                        radius: 30,
-                        backgroundImage: NetworkImage(
-                          'https://i.pravatar.cc/150?img=3',
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            profile.fullName,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            profile.email,
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                } else if (state is Unauthenticated) {
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Jelajahi Kesenian Daerah',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Silahkan Login untuk mengakses fitur',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ],
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/Login');
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: const Color(0xFF2A3663),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20.0,
-                            vertical: 12.0,
-                          ),
-                        ),
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  );
-                } else if (state is AuthError) {
-                  return Text("Terjadi kesalahan: ${state.message}");
-                }
-                return const Center(child: CircularProgressIndicator());
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                BlocBuilder<AuthBloc, AppAuthState>(
-                  builder: (context, state) {
-                    if (state is Authenticated) {
-                      return _buildOptionCard('Detail Akun', Icons.person);
-                    }
-                    return const SizedBox();
-                  },
+      body: BlocBuilder<AuthBloc, AppAuthState>(
+        builder: (context, state) {
+          if (state is AppAuthLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return ListView(
+            children: [
+              Container(
+                color: Colors.grey.shade200,
+                padding: const EdgeInsets.all(20),
+                child: _buildHeader(context, state),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildOptionCard(
+                      'Tentang SENADA',
+                      Icons.info_outline,
+                          () => Navigator.pushNamed(context, '/about'),
+                    ),
+                  ],
                 ),
-                _buildOptionCard('Tentang SENADA', Icons.info_outline),
-              ],
-            ),
-          ),
-          BlocBuilder<AuthBloc, AppAuthState>(
-            builder: (context, state) {
-              if (state is Authenticated) {
-                return Padding(
+              ),
+              if (state is Authenticated)
+                Padding(
                   padding: const EdgeInsets.all(20),
                   child: TextButton(
                     onPressed: () {
@@ -160,21 +82,96 @@ class _AccountPageBody extends StatelessWidget {
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ),
-                );
-              }
-              return const SizedBox();
-            },
-          ),
-        ],
+                ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildOptionCard(String title, IconData icon) {
+  Widget _buildHeader(BuildContext context, AppAuthState state) {
+    if (state is Authenticated) {
+      final profile = state.profile;
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const CircleAvatar(
+            radius: 30,
+            backgroundImage: NetworkImage(
+              'https://i.pravatar.cc/150?img=3',
+            ),
+          ),
+          const SizedBox(width: 20),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                profile.fullName,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                profile.email,
+                style: const TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+        ],
+      );
+    } else if (state is Unauthenticated) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                'Jelajahi Kesenian Daerah',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Silahkan Login untuk mengakses fitur',
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/Login');
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFF2A3663),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 12.0,
+              ),
+            ),
+            child: const Text(
+              'Login',
+              style: TextStyle(fontSize: 16, color: Colors.white),
+            ),
+          ),
+        ],
+      );
+    } else if (state is AuthError) {
+      return Text("Terjadi kesalahan: ${state.message}");
+    } else {
+      return const SizedBox();
+    }
+  }
+
+  Widget _buildOptionCard(String title, IconData icon, VoidCallback onTap) {
     return InkWell(
-      onTap: () {
-        // Tambahkan navigasi sesuai kebutuhan
-      },
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           border: Border(

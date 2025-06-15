@@ -5,7 +5,7 @@ import 'package:senada/screens/DetailPage/DetailPage.dart';
 import 'package:senada/services/events/event_service.dart';
 
 class CulturalShowPage extends StatefulWidget {
-  final int categoryId;
+  final String categoryId;
   final String titlePage;
 
   const CulturalShowPage({
@@ -49,7 +49,7 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
   Future<void> fetchEvents() async {
     setState(() => isLoading = true);
     try {
-      final data = await eventService.getByCategory(widget.categoryId);
+      final data = await eventService.getEventByCategory(widget.categoryId);
       setState(() {
         allEvents = data;
         filteredEvents = List.from(allEvents);
@@ -217,11 +217,11 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
   Widget _buildEventCard(Event event) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context, MaterialPageRoute(
-          builder: (context) => DetailPage(eventId: event.id), // Kirim eventId ke DetailPage
-          ),
-        );
+        // Navigator.push(
+        //   context, MaterialPageRoute(
+        //   builder: (context) => DetailPage(eventId: event.id), // Kirim eventId ke DetailPage
+        //   ),
+        // );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:senada/Screens/reservation/reservation.dart';
 import 'package:senada/models/events/event_model.dart';
 import 'package:senada/models/ticket/ticket_model.dart';
+import 'package:senada/screens/reservation/reservation.dart';
 import 'package:senada/services/events/event_service.dart';
 import 'package:senada/services/tickets/ticket_service.dart';
 
 class DetailPage extends StatefulWidget {
-  final int eventId;
+  final String eventId;
 
   const DetailPage({Key? key, required this.eventId}) : super(key: key);
 
@@ -32,48 +33,59 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   Future<void> _fetchEventAndTickets() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
-      // Fetch event details
-      final event = await eventService.getById(widget.eventId);
+      final event = await eventService.getEventById(widget.eventId);
 
-      // Fetch tickets for this event
-      final tickets = await ticketService.getTicketEvent(widget.eventId);
+      if (event == null) {
+        setState(() {
+          _event = null;
+          _tickets = [];
+          _ticketsByDate = {};
+          _isLoading = false;
+        });
+        return;
+      }
 
-      // Group tickets by date
+      final tickets = await ticketService.getTicketsByEventId(widget.eventId);
+
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final oneWeekFromNow = today.add(const Duration(days: 6));
+      final upcomingDates = List.generate(7, (index) => today.add(Duration(days: index)));
+
       final ticketsByDate = <DateTime, List<Ticket>>{};
+      for (var date in upcomingDates) {
+        ticketsByDate[date] = [];
+      }
+
       for (var ticket in tickets) {
-        final date = DateTime(
+        final ticketDate = DateTime(
           ticket.sessionStartDate.year,
           ticket.sessionStartDate.month,
           ticket.sessionStartDate.day,
         );
 
-        if (!ticketsByDate.containsKey(date)) {
-          ticketsByDate[date] = [];
-        }
-        ticketsByDate[date]!.add(ticket);
+        if (ticketDate.isBefore(today) || ticketDate.isAfter(oneWeekFromNow)) continue;
+
+        ticketsByDate[ticketDate]?.add(ticket);
       }
 
       setState(() {
         _event = event;
         _tickets = tickets;
         _ticketsByDate = ticketsByDate;
-
-        // Select the first date by default if available
-        if (ticketsByDate.isNotEmpty) {
-          _selectedDate = ticketsByDate.keys.first;
-        }
-
+        _selectedDate = ticketsByDate.keys.first;
         _isLoading = false;
       });
     } catch (e) {
       print('Error fetching data: $e');
       setState(() {
         _isLoading = false;
+        _event = null;
+        _tickets = [];
+        _ticketsByDate = {};
       });
     }
   }
@@ -105,22 +117,18 @@ class _DetailPageState extends State<DetailPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          color: Colors.white,
+          icon: const FaIcon(FontAwesomeIcons.angleLeft, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: const Color(0xFFB2A55D),
+        toolbarHeight: 60,
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ImageSection(event.thumbnail),
-            TitleSection(
-              name: event.title,
-              rating: 8.5,
-              reviewCount: 100,
-            ),
+            TitleSection(name: event.title, rating: 8.5, reviewCount: 100),
             TextSection(deskripsi: event.description ?? ''),
             InformasiSection(
               name: event.title,
@@ -142,10 +150,7 @@ class _DetailPageState extends State<DetailPage> {
       children: [
         const Padding(
           padding: EdgeInsets.only(left: 20, top: 15, bottom: 10),
-          child: Text(
-            'Jadwal pertunjukan',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
+          child: Text('Jadwal pertunjukan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ),
         SizedBox(
           height: 50,
@@ -156,14 +161,14 @@ class _DetailPageState extends State<DetailPage> {
             itemBuilder: (context, index) {
               final date = _ticketsByDate.keys.elementAt(index);
               final isSelected = _selectedDate == date;
-              final dateFormat = DateFormat('d MMM');
               final dayFormat = DateFormat('E');
+              final dateFormat = DateFormat('d MMM');
 
               return GestureDetector(
                 onTap: () {
                   setState(() {
                     _selectedDate = date;
-                    _selectedTicket = null; // Reset selected ticket
+                    _selectedTicket = null;
                   });
                 },
                 child: Container(
@@ -178,8 +183,7 @@ class _DetailPageState extends State<DetailPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        dayFormat.format(date)[0].toUpperCase() +
-                            dayFormat.format(date).substring(1, 3),
+                        dayFormat.format(date).substring(0, 3),
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.black,
                           fontWeight: FontWeight.bold,
@@ -208,15 +212,24 @@ class _DetailPageState extends State<DetailPage> {
   Widget _buildTicketSelectionSection(Event event) {
     final ticketsForSelectedDate = _ticketsByDate[_selectedDate] ?? [];
 
+    if (ticketsForSelectedDate.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Center(
+          child: Text(
+            'Tiket tidak tersedia pada tanggal ini',
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          ),
+        )
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
           padding: EdgeInsets.only(left: 20, top: 15, bottom: 10),
-          child: Text(
-            'Tiket pertunjukan',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
+          child: Text('Tiket pertunjukan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -228,14 +241,9 @@ class _DetailPageState extends State<DetailPage> {
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    color: isSelected ? const Color(0xFF3C5932) : Colors.grey.shade300,
-                    width: isSelected ? 2 : 2,
-                  ),
+                  border: Border.all(color: Colors.grey.shade300, width: 2),
                   borderRadius: BorderRadius.circular(8),
-                  color: isAvailable
-                      ? Colors.white
-                      : const Color(0xFFF5F5F5),
+                  color: isAvailable ? Colors.white : const Color(0xFFF5F5F5),
                 ),
                 child: Row(
                   children: [
@@ -245,21 +253,11 @@ class _DetailPageState extends State<DetailPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              ticket.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
+                            Text(ticket.name,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                             const SizedBox(height: 4),
-                            Text(
-                              '${ticket.sessionStartTime} - ${ticket.sessionEndTime}',
-                              style: TextStyle(
-                                color: Colors.grey[700],
-                                fontSize: 14,
-                              ),
-                            ),
+                            Text('${ticket.sessionStartTime} - ${ticket.sessionEndTime}',
+                                style: TextStyle(color: Colors.grey[700], fontSize: 14)),
                           ],
                         ),
                       ),
@@ -269,18 +267,17 @@ class _DetailPageState extends State<DetailPage> {
                       child: isAvailable
                           ? ElevatedButton(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => ReservationPage(eventName: event.title)
-                          ));
-                          setState(() {
-                            _selectedTicket = ticket;
-                          });
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReservationPage(event: event, ticket: ticket),
+                            ),
+                          );
+                          setState(() => _selectedTicket = ticket);
                         },
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          backgroundColor: isSelected
-                              ? const Color(0xFF3C5932)
-                              : const Color(0xFF3C5932),
+                          backgroundColor: isSelected ? const Color(0xFF3C5932) : const Color(0xFF3C5932),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -289,20 +286,14 @@ class _DetailPageState extends State<DetailPage> {
                         child: const Text('Pilih'),
                       )
                           : Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Text(
                           'Tidak tersedia',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                          ),
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                       ),
                     ),
@@ -315,10 +306,9 @@ class _DetailPageState extends State<DetailPage> {
       ],
     );
   }
-
 }
 
-// Keep original widget components
+// Widget bawaan
 class ImageSection extends StatelessWidget {
   final String image;
   const ImageSection(this.image, {super.key});
@@ -328,12 +318,13 @@ class ImageSection extends StatelessWidget {
     return Image.network(
       image,
       width: double.infinity,
+      height: 250,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) => Container(
         height: 250,
         width: double.infinity,
         color: Colors.grey[300],
-        child: Icon(Icons.broken_image, color: Colors.grey),
+        child: const Icon(Icons.broken_image, color: Colors.grey),
       ),
     );
   }
