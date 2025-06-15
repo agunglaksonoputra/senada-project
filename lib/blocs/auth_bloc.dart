@@ -24,6 +24,8 @@ abstract class AppAuthState {}
 
 class AuthInitial extends AppAuthState {}
 
+class AppAuthLoading extends AppAuthState {}
+
 class Authenticated extends AppAuthState {
   final User user;
   final Profile profile;
@@ -35,6 +37,7 @@ class Unauthenticated extends AppAuthState {}
 
 class AuthError extends AppAuthState {
   final String message;
+
   AuthError(this.message);
 }
 
@@ -48,47 +51,53 @@ class AuthBloc extends Bloc<AuthEvent, AppAuthState> {
     required this.firebaseAuth,
     required this.userService,
   }) : super(AuthInitial()) {
-    on<CheckAuthStatus>((event, emit) async {
-      final user = firebaseAuth.currentUser;
-      if (user != null) {
-        try {
-          final uid = user.uid;
-          final profile = await userService.fetchProfile(uid);
+    on<CheckAuthStatus>(_onCheckAuthStatus);
+    on<LoginRequested>(_onLoginRequested);
+    on<LogoutRequested>(_onLogoutRequested);
+  }
 
-          if (profile == null) {
-            emit(AuthError('Profil pengguna tidak lengkap.'));
-            return;
-          }
-
-          emit(Authenticated(user, profile));
-        } catch (e) {
-          emit(AuthError('Gagal memuat data profil: $e'));
+  Future<void> _onCheckAuthStatus(
+      CheckAuthStatus event, Emitter<AppAuthState> emit) async {
+    emit(AppAuthLoading());
+    final user = firebaseAuth.currentUser;
+    if (user != null) {
+      try {
+        final uid = user.uid;
+        final profile = await userService.getUserById(uid);
+        if (profile == null) {
+          emit(AuthError('Profil pengguna tidak ditemukan.'));
+          return;
         }
-      } else {
-        emit(Unauthenticated());
-      }
-    });
-
-    on<LoginRequested>((event, emit) async {
-      emit(AuthInitial());
-      try {
-        await firebaseAuth.signInWithEmailAndPassword(
-          email: event.email,
-          password: event.password,
-        );
-        add(CheckAuthStatus());
+        emit(Authenticated(user, profile));
       } catch (e) {
-        emit(AuthError('Login gagal: ${e.toString()}'));
+        emit(AuthError('Gagal memuat data profil: $e'));
       }
-    });
+    } else {
+      emit(Unauthenticated());
+    }
+  }
 
-    on<LogoutRequested>((event, emit) async {
-      try {
-        await firebaseAuth.signOut();
-        emit(Unauthenticated());
-      } catch (e) {
-        emit(AuthError("Gagal logout: ${e.toString()}"));
-      }
-    });
+  Future<void> _onLoginRequested(
+      LoginRequested event, Emitter<AppAuthState> emit) async {
+    emit(AppAuthLoading());
+    try {
+      await firebaseAuth.signInWithEmailAndPassword(
+        email: event.email,
+        password: event.password,
+      );
+      add(CheckAuthStatus());
+    } catch (e) {
+      emit(AuthError('Login gagal: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onLogoutRequested(
+      LogoutRequested event, Emitter<AppAuthState> emit) async {
+    try {
+      await firebaseAuth.signOut();
+      emit(Unauthenticated());
+    } catch (e) {
+      emit(AuthError("Gagal logout: ${e.toString()}"));
+    }
   }
 }

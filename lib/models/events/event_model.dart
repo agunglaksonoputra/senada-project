@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Event {
-  final int id;
+  final String id;
   final String title;
   final String description;
   final String phoneNumber;
@@ -22,6 +24,17 @@ class Event {
   });
 
   factory Event.fromMap(Map<String, dynamic> map) {
+    DateTime parseTimestamp(dynamic timestamp) {
+      if (timestamp is Timestamp) {
+        return timestamp.toDate();
+      } else if (timestamp is String) {
+        return DateTime.parse(timestamp);
+      } else {
+        // fallback jika null atau tipe lain
+        return DateTime.now();
+      }
+    }
+
     return Event(
       id: map['id'],
       title: map['title'],
@@ -30,8 +43,8 @@ class Event {
       location: map['location'],
       experience: map['experience'] ?? '',
       thumbnail: map['thumbnail'],
-      createdAt: DateTime.parse(map['createdAt']),
-      updateAt: DateTime.parse(map['updatedAt']),
+      createdAt: parseTimestamp(map['createdAt']),
+      updateAt: parseTimestamp(map['updatedAt']),
     );
   }
 

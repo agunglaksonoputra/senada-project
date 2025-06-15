@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:senada/Screens/reservation/reservation.dart';
 import 'package:senada/models/events/event_model.dart';
 import 'package:senada/models/ticket/ticket_model.dart';
+import 'package:senada/screens/reservation/reservation.dart';
 import 'package:senada/services/events/event_service.dart';
 import 'package:senada/services/tickets/ticket_service.dart';
 
 class DetailPage extends StatefulWidget {
-  final int eventId;
+  final String eventId;
 
   const DetailPage({Key? key, required this.eventId}) : super(key: key);
 
@@ -37,7 +38,7 @@ class _DetailPageState extends State<DetailPage> {
     });
 
     try {
-      final event = await eventService.getById(widget.eventId);
+      final event = await eventService.getEventById(widget.eventId);
 
       // Cek apakah event null
       if (event == null) {
@@ -50,7 +51,7 @@ class _DetailPageState extends State<DetailPage> {
         return;
       }
 
-      final tickets = await ticketService.getTicketEvent(widget.eventId);
+      final tickets = await ticketService.getTicketsByEventId(widget.eventId);
 
       // Cek apakah ticket null atau kosong
       if (tickets == null || tickets.isEmpty) {
@@ -120,11 +121,13 @@ class _DetailPageState extends State<DetailPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          color: Colors.white,
-          onPressed: () => Navigator.pop(context),
+          icon: const FaIcon(FontAwesomeIcons.angleLeft, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
         backgroundColor: const Color(0xFFB2A55D),
+        toolbarHeight: 60,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -263,8 +266,8 @@ class _DetailPageState extends State<DetailPage> {
                 margin: const EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: isSelected ? const Color(0xFF3C5932) : Colors.grey.shade300,
-                    width: isSelected ? 2 : 2,
+                    color: Colors.grey.shade300,
+                    width: 2,
                   ),
                   borderRadius: BorderRadius.circular(8),
                   color: isAvailable
@@ -304,7 +307,7 @@ class _DetailPageState extends State<DetailPage> {
                           ? ElevatedButton(
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => ReservationPage(eventName: event.title)
+                              builder: (context) => ReservationPage(event: event, ticket: ticket)
                           ));
                           setState(() {
                             _selectedTicket = ticket;
@@ -362,6 +365,7 @@ class ImageSection extends StatelessWidget {
     return Image.network(
       image,
       width: double.infinity,
+      height: 250,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) => Container(
         height: 250,
