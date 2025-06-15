@@ -55,9 +55,11 @@ class _AccountPageBody extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (state is Authenticated)
-                      _buildOptionCard('Detail Akun', Icons.person),
-                    _buildOptionCard('Tentang SENADA', Icons.info_outline),
+                    _buildOptionCard(
+                      'Tentang SENADA',
+                      Icons.info_outline,
+                          () => Navigator.pushNamed(context, '/about'),
+                    ),
                   ],
                 ),
               ),
@@ -167,11 +169,9 @@ class _AccountPageBody extends StatelessWidget {
     }
   }
 
-  Widget _buildOptionCard(String title, IconData icon) {
+  Widget _buildOptionCard(String title, IconData icon, VoidCallback onTap) {
     return InkWell(
-      onTap: () {
-        // Tambahkan navigasi sesuai kebutuhan
-      },
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           border: Border(

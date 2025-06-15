@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:senada/firebase_options.dart';
+import 'package:senada/screens/about.dart';
 import 'package:senada/screens/home/home_screen.dart';
 import 'package:senada/screens/auth/Login.dart';
 import 'package:senada/screens/auth/Register.dart';
@@ -40,6 +41,7 @@ class MainApp extends StatelessWidget {
         '/Login': (context) => const Login(),
         '/Register': (context) => Register(),
         '/ResetPassword': (context) => const ResetPassword(),
+        '/about': (context) => const AboutPage(),
 
         // Tambahkan rute lainnya di sini jika perlu
       },
