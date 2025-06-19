@@ -217,11 +217,11 @@ class _CulturalShowPageState extends State<CulturalShowPage> {
   Widget _buildEventCard(Event event) {
     return GestureDetector(
       onTap: () {
-        // Navigator.push(
-        //   context, MaterialPageRoute(
-        //   builder: (context) => DetailPage(eventId: event.id), // Kirim eventId ke DetailPage
-        //   ),
-        // );
+        Navigator.push(
+          context, MaterialPageRoute(
+          builder: (context) => DetailPage(eventId: event.id), // Kirim eventId ke DetailPage
+          ),
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
